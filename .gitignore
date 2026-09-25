@@ -46,7 +46,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Internal System & Architecture Specs (Do NOT Push)
+# Private Workspaces & Design Assets (Do NOT Push)
+.agents/
+design-system/
+design-sistem/
+
+# Internal Architecture Specs (Do NOT Push)
 PRD.md
 ARCHITECTURE.md
 DESIGN.md
@@ -56,5 +61,5 @@ SKILL.md
 TODO.md
 WORKFLOW.md
 SECURITY.md
-SECURITY_AUDIT.md
+
 
