@@ -105,7 +105,10 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full w-full overflow-x-hidden flex flex-col bg-background text-foreground transition-colors duration-200">
+      <body
+        suppressHydrationWarning
+        className="min-h-full w-full overflow-x-hidden flex flex-col bg-background text-foreground transition-colors duration-200"
+      >
         <SessionProvider session={session}>
           <ThemeProvider>{children}</ThemeProvider>
         </SessionProvider>
