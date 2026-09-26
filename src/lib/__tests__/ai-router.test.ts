@@ -54,7 +54,7 @@ async function runTests() {
   console.log("\n5. Uji Orchestrator generateWithFallback (End-to-End):");
   try {
     let routerStream = "";
-    const res = await generateWithFallback(
+    await generateWithFallback(
       "Perkenalkan dirimu sebagai AI Susun Pake AI dalam 1 kalimat.",
       {
         onToken: (c) => (routerStream += c),

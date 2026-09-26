@@ -106,7 +106,7 @@ export const authOptions: AuthOptions = {
 
           if (!email) return false;
 
-          let existingUser = await User.findOne({
+          const existingUser = await User.findOne({
             $or: [{ googleId }, { email }],
           });
 

@@ -7,7 +7,6 @@ import crypto from "crypto";
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16;
-const AUTH_TAG_LENGTH = 16;
 
 /**
  * Mendapatkan kunci enkripsi 32-byte (256-bit).

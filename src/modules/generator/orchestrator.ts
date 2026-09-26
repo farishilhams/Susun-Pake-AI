@@ -133,7 +133,7 @@ export class BatchGeneratorOrchestrator {
       onFileStart?.(fileType, this.activeProvider);
 
       let content = "";
-      let successProvider = this.activeProvider;
+      const successProvider = this.activeProvider;
 
       try {
         const prompt = buildPrompt(fileType, context.brief, effectiveClarifications);

@@ -6,7 +6,7 @@
 // ============================================================
 
 import Groq from "groq-sdk";
-import { StreamCallback, ProviderOptions } from "./gemini";
+import { ProviderOptions } from "./gemini";
 
 // Model aktif di Groq yang stabil dan memiliki performa tinggi
 export const GROQ_MODELS_FLASH = [

@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Terminal, FileCode2, ArrowRight } from "lucide-react";
+import { Terminal, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Register ScrollTrigger safely for React & SSR environments

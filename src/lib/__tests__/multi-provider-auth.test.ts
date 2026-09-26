@@ -57,7 +57,7 @@ async function simulateGoogleSignIn(profile: { sub: string; email: string; name:
   const googleId = profile.sub;
   const googleAvatar = profile.picture;
 
-  let existingUser = mockDb.get(cleanEmail);
+  const existingUser = mockDb.get(cleanEmail);
 
   if (existingUser) {
     // KUNCI: Pertahankan passwordHash asli, tautkan googleId, dan set authProvider = "both"
