@@ -44,6 +44,8 @@ export default function MagneticButton({
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (disabled || !ref.current) return;
+    // Skip calculation on touch devices (phones/tablets) to ensure immediate native touch response
+    if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) return;
     const { clientX, clientY } = e;
     const { width, height, left, top } = ref.current.getBoundingClientRect();
     const centerX = left + width / 2;

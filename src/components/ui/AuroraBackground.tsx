@@ -43,7 +43,7 @@ export default function AuroraBackground({
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute -top-[20%] left-[15%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-primary/60 via-emerald-600/30 to-transparent blur-3xl"
+          className="absolute -top-[20%] left-[15%] w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] rounded-full bg-gradient-to-br from-primary/60 via-emerald-600/30 to-transparent blur-2xl sm:blur-3xl transform-gpu will-change-transform"
         />
 
         {/* Deep Slate / Blue Secondary Glow */}
@@ -58,11 +58,11 @@ export default function AuroraBackground({
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute top-[30%] -right-[10%] w-[650px] h-[650px] rounded-full bg-gradient-to-bl from-teal-500/30 via-slate-800/40 to-transparent blur-3xl"
+          className="absolute top-[30%] -right-[10%] w-[340px] h-[340px] sm:w-[650px] sm:h-[650px] rounded-full bg-gradient-to-bl from-teal-500/30 via-slate-800/40 to-transparent blur-2xl sm:blur-3xl transform-gpu will-change-transform"
         />
 
         {/* Center Bottom Ambient Accent */}
-        <div className="absolute -bottom-[20%] left-[30%] w-[500px] h-[500px] rounded-full bg-primary/20 blur-[120px]" />
+        <div className="absolute -bottom-[20%] left-[30%] w-[260px] h-[260px] sm:w-[500px] sm:h-[500px] rounded-full bg-primary/20 blur-[50px] sm:blur-[120px] transform-gpu pointer-events-none" />
       </div>
 
       {/* Foreground Content */}

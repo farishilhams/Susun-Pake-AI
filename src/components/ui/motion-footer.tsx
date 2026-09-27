@@ -270,55 +270,73 @@ export function CinematicFooter() {
   const giantTextRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
+  const [isDesktop, setIsDesktop] = React.useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!wrapperRef.current) return;
 
-    // React Strict Mode & Next.js compatible GSAP context cleanup
-    const ctx = gsap.context(() => {
-      // 1. Giant Background Watermark Parallax
-      if (giantTextRef.current) {
-        gsap.fromTo(
-          giantTextRef.current,
-          { y: "8vh", scale: 0.85, opacity: 0 },
-          {
-            y: "0vh",
-            scale: 1,
-            opacity: 1,
-            ease: "power1.out",
-            scrollTrigger: {
-              trigger: wrapperRef.current,
-              start: "top 85%",
-              end: "bottom bottom",
-              scrub: 1,
-            },
-          }
-        );
-      }
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
 
-      // 2. Staggered Content Reveal
-      if (headingRef.current && linksRef.current) {
-        gsap.fromTo(
-          [headingRef.current, linksRef.current],
-          { y: 35, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            stagger: 0.12,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: wrapperRef.current,
-              start: "top 50%",
-              end: "bottom bottom",
-              scrub: 1,
-            },
-          }
-        );
-      }
-    }, wrapperRef);
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop, { passive: true });
 
-    return () => ctx.revert();
+    if (!wrapperRef.current) {
+      return () => window.removeEventListener("resize", checkDesktop);
+    }
+
+    // Only activate GSAP ScrollTrigger scrub on desktop screens (>= 768px)
+    // to preserve 120 FPS native smooth scrolling on mobile & touch devices
+    let ctx: gsap.Context | null = null;
+    if (window.innerWidth >= 768) {
+      ctx = gsap.context(() => {
+        // 1. Giant Background Watermark Parallax
+        if (giantTextRef.current) {
+          gsap.fromTo(
+            giantTextRef.current,
+            { y: "8vh", scale: 0.85, opacity: 0 },
+            {
+              y: "0vh",
+              scale: 1,
+              opacity: 1,
+              ease: "power1.out",
+              scrollTrigger: {
+                trigger: wrapperRef.current,
+                start: "top 85%",
+                end: "bottom bottom",
+                scrub: 1,
+              },
+            }
+          );
+        }
+
+        // 2. Staggered Content Reveal
+        if (headingRef.current && linksRef.current) {
+          gsap.fromTo(
+            [headingRef.current, linksRef.current],
+            { y: 35, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              stagger: 0.12,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: wrapperRef.current,
+                start: "top 50%",
+                end: "bottom bottom",
+                scrub: 1,
+              },
+            }
+          );
+        }
+      }, wrapperRef);
+    }
+
+    return () => {
+      window.removeEventListener("resize", checkDesktop);
+      if (ctx) ctx.revert();
+    };
   }, []);
 
   return (
@@ -326,20 +344,36 @@ export function CinematicFooter() {
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
 
       {/* 
-        The "Curtain Reveal" Wrapper:
-        Optimized with contain: "paint" and transform-gpu so the browser
-        can scroll smoothly without full-document repainting.
+        Curtain Reveal Wrapper:
+        - Desktop (>= 768px): Cinematic fixed curtain reveal with clipPath.
+        - Mobile (< 768px): Native in-flow footer with 0 compositor overhead for butter-smooth 60/120fps scrolling.
       */}
       <div
         ref={wrapperRef}
-        className="relative h-screen w-full min-h-[600px] overflow-hidden transform-gpu"
-        style={{
-          clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)",
-          contain: "paint",
-        }}
+        className={cn(
+          "w-full overflow-hidden transform-gpu",
+          isDesktop
+            ? "relative h-screen min-h-[600px]"
+            : "relative min-h-fit"
+        )}
+        style={
+          isDesktop
+            ? {
+                clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)",
+                contain: "paint",
+              }
+            : undefined
+        }
       >
-        {/* The actual footer stays fixed to viewport underneath everything */}
-        <footer className="fixed bottom-0 left-0 flex h-screen min-h-[600px] w-full flex-col justify-between overflow-hidden bg-background text-foreground cinematic-footer-wrapper transform-gpu">
+        {/* The actual footer stays fixed underneath on desktop, normal in-flow on mobile */}
+        <footer
+          className={cn(
+            "flex w-full flex-col justify-between overflow-hidden bg-background text-foreground cinematic-footer-wrapper transform-gpu",
+            isDesktop
+              ? "fixed bottom-0 left-0 h-screen min-h-[600px]"
+              : "relative py-12 min-h-fit"
+          )}
+        >
           {/* Ambient Light & Grid Background */}
           <div className="footer-aurora absolute left-1/2 top-1/2 h-[55vh] w-[75vw] -translate-x-1/2 -translate-y-1/2 animate-footer-breathe rounded-[50%] pointer-events-none z-0" />
           <div className="footer-bg-grid absolute inset-0 z-0 pointer-events-none" />
