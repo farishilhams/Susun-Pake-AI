@@ -4,7 +4,6 @@
 // ============================================================
 
 export const DEFAULT_ADMIN_EMAILS = [
-  "farishilham.s@gmail.com",
   "syahranifarish@gmail.com",
 ];
 
