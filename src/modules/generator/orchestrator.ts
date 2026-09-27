@@ -19,6 +19,7 @@ import {
   AiMode,
 } from "@/modules/ai-provider/router";
 import { StreamCallback } from "@/modules/ai-provider/gemini";
+import { getModelById } from "@/modules/ai-provider/catalog";
 import { buildPrompt } from "@/modules/files/prompt-builder";
 import { FILE_TYPES, FileType, ProjectBrief } from "@/types";
 
@@ -37,6 +38,8 @@ export interface BatchOrchestratorOptions {
   projectId: string;
   context: SharedProjectContext;
   aiMode?: AiMode;
+  modelId?: string;
+  extendedReasoning?: boolean;
   pacingDelayMs?: number; // Default 1200ms
   onFileStart?: (fileType: FileType, provider: ProviderName) => void;
   onFileToken?: (fileType: FileType, chunk: string) => void;
@@ -47,6 +50,12 @@ export interface BatchOrchestratorOptions {
   ) => Promise<void> | void;
   onFileError?: (fileType: FileType, error: string) => void;
   onPacing?: (nextFileType: FileType, delayMs: number) => void;
+  onFallback?: (info: {
+    fileType: FileType;
+    originalProvider: ProviderName;
+    fallbackProvider: ProviderName;
+    reason: string;
+  }) => void;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -65,7 +74,15 @@ export class BatchGeneratorOrchestrator {
   public async initialize(): Promise<ProviderName> {
     try {
       console.log("[BatchOrchestrator] Menjalankan health check awal...");
-      this.activeProvider = await checkProviderHealth("gemini");
+      let preferred: ProviderName = "gemini";
+      if (this.options.modelId) {
+        const modelDef = getModelById(this.options.modelId);
+        if (modelDef) {
+          preferred = modelDef.provider;
+        }
+      }
+
+      this.activeProvider = await checkProviderHealth(preferred);
       console.log(
         `[BatchOrchestrator] Provider utama terkunci (Sticky): ${this.activeProvider}`
       );
@@ -98,6 +115,8 @@ export class BatchGeneratorOrchestrator {
     const {
       context,
       aiMode = "flash",
+      modelId,
+      extendedReasoning,
       pacingDelayMs = 1200,
       onFileStart,
       onFileToken,
@@ -142,6 +161,8 @@ export class BatchGeneratorOrchestrator {
         content = await this.generateWithStickyRetry(prompt, {
           fileType,
           aiMode,
+          modelId,
+          extendedReasoning,
           onToken: (chunk) => onFileToken?.(fileType, chunk),
         });
 
@@ -174,6 +195,8 @@ export class BatchGeneratorOrchestrator {
     opts: {
       fileType: FileType;
       aiMode: AiMode;
+      modelId?: string;
+      extendedReasoning?: boolean;
       onToken?: StreamCallback;
     }
   ): Promise<string> {
@@ -187,9 +210,19 @@ export class BatchGeneratorOrchestrator {
         const result = await generateWithFallback(prompt, {
           onToken: opts.onToken,
           aiMode: opts.aiMode,
+          modelId: opts.modelId,
+          extendedReasoning: opts.extendedReasoning,
           preferredProvider: this.activeProvider,
           onProviderUsed: (p) => {
             usedProvider = p;
+          },
+          onFallback: (info) => {
+            this.options.onFallback?.({
+              fileType: opts.fileType,
+              originalProvider: info.originalProvider,
+              fallbackProvider: info.fallbackProvider,
+              reason: info.reason,
+            });
           },
         });
 
@@ -223,8 +256,18 @@ export class BatchGeneratorOrchestrator {
         const fallbackResult = await generateWithFallback(prompt, {
           onToken: opts.onToken,
           aiMode: opts.aiMode,
+          modelId: opts.modelId,
+          extendedReasoning: opts.extendedReasoning,
           onProviderUsed: (p) => {
             finalProvider = p;
+          },
+          onFallback: (info) => {
+            this.options.onFallback?.({
+              fileType: opts.fileType,
+              originalProvider: info.originalProvider,
+              fallbackProvider: info.fallbackProvider,
+              reason: info.reason,
+            });
           },
         });
 

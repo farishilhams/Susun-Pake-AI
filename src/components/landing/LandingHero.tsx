@@ -9,7 +9,6 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {
   FileText,
@@ -17,12 +16,9 @@ import {
   MessageSquare,
   Sparkles,
   ArrowRight,
-  ShieldCheck,
   Zap,
-  GitBranch,
   Layers,
   CheckCircle2,
-  Terminal,
   Cpu,
 } from "lucide-react";
 import {
@@ -57,9 +53,8 @@ const MARQUEE_ITEMS = [
 ];
 
 export default function LandingHero() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [stats, setStats] = useState({ usersCount: 0, projectsCount: 0 });
-  const [statsLoaded, setStatsLoaded] = useState(false);
 
   // Ambil statistik penggunaan nyata dari database secara real-time
   useEffect(() => {
@@ -73,7 +68,6 @@ export default function LandingHero() {
           const json = await res.json();
           if (json.success && json.data) {
             setStats(json.data);
-            setStatsLoaded(true);
           }
         }
       } catch (err) {
@@ -197,7 +191,7 @@ export default function LandingHero() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left"
               >
-                {DOCS.map((doc, idx) => (
+                {DOCS.map((doc) => (
                   <GlassPill
                     key={doc.name}
                     variant="badge"
@@ -403,7 +397,7 @@ export default function LandingHero() {
                       transition={{ duration: 0.5 }}
                       className="p-2 rounded-lg bg-surface border border-white/10 text-[9px] font-mono text-muted-fg"
                     >
-                      "Tambahkan field OAuth Google &amp; GitHub..."
+                      &ldquo;Tambahkan field OAuth Google &amp; GitHub...&rdquo;
                     </motion.div>
 
                     <motion.div
@@ -484,7 +478,7 @@ export default function LandingHero() {
                   title: "Push ke GitHub & Gas Coding",
                   desc: "Cek hasilnya di split-editor, push langsung ke repo GitHub kamu, atau download file zip-nya buat mulai eksekusi.",
                 },
-              ].map((item, idx) => (
+              ].map((item) => (
                 <GlassPill key={item.step} variant="card" className="p-6 relative">
                   <div className="text-3xl font-bold font-mono text-primary/30 mb-4">
                     {item.step}

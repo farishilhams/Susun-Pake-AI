@@ -22,4 +22,6 @@ export {
   DropdownMenuSub,
   DropdownMenuRadioGroup,
 } from "./dropdown-menu";
+export { default as ConfirmModal } from "./ConfirmModal";
+export { ModelSelector, default as ModelSelectorComponent } from "./model-selector";
 

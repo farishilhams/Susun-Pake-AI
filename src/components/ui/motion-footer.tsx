@@ -415,6 +415,22 @@ export function CinematicFooter() {
                 </MagneticButton>
                 <MagneticButton
                   as={Link}
+                  href="/templates"
+                  id="footer-link-templates"
+                  className="footer-glass-pill px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-muted-foreground font-medium text-xs sm:text-sm hover:text-foreground"
+                >
+                  Template
+                </MagneticButton>
+                <MagneticButton
+                  as={Link}
+                  href="/consultation"
+                  id="footer-link-consultation"
+                  className="footer-glass-pill px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-muted-foreground font-medium text-xs sm:text-sm hover:text-foreground"
+                >
+                  Konsultasi
+                </MagneticButton>
+                <MagneticButton
+                  as={Link}
                   href={isAuthenticated ? "/dashboard" : "/login"}
                   id="footer-link-auth"
                   className="footer-glass-pill px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-muted-foreground font-medium text-xs sm:text-sm hover:text-foreground"

@@ -65,6 +65,9 @@ const ProjectSchema = new Schema<IProjectDocument>(
   }
 );
 
+// Compound index untuk query optimasi dashboard & riwayat project
+ProjectSchema.index({ userId: 1, isPinned: -1, updatedAt: -1 });
+
 const Project: Model<IProjectDocument> =
   (mongoose.models.Project as Model<IProjectDocument>) ||
   mongoose.model<IProjectDocument>("Project", ProjectSchema);

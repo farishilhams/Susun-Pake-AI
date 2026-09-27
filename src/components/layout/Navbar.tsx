@@ -19,7 +19,6 @@ import {
   LogOut,
   Menu,
   X,
-  User as UserIcon,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
@@ -30,7 +29,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui";
-import { getInitials } from "@/lib/utils";
+import { getInitials, cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
@@ -42,6 +41,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Fitur", href: "/#fitur", anchor: "#fitur" },
   { label: "Alur Kerja", href: "/#alur-kerja", anchor: "#alur-kerja" },
   { label: "Statistik", href: "/#statistik", anchor: "#statistik" },
+  { label: "Template", href: "/templates", anchor: "" },
+  { label: "Konsultasi", href: "/consultation", anchor: "" },
 ];
 
 export default function Navbar() {
@@ -90,21 +91,77 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const [activeSection, setActiveSection] = useState<string>("");
+
+  // ScrollSpy untuk mendeteksi seksi aktif pada halaman beranda (#fitur, #alur-kerja, #statistik)
+  useEffect(() => {
+    if (!isHome) {
+      setActiveSection("");
+      return;
+    }
+
+    // Set nilai awal dari hash URL jika ada saat pertama kali dimuat
+    if (typeof window !== "undefined" && window.location.hash) {
+      setActiveSection(window.location.hash);
+    }
+
+    const sectionIds = ["fitur", "alur-kerja", "statistik"];
+    const sectionElements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    if (sectionElements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries.filter((e) => e.isIntersecting);
+        if (visibleEntries.length > 0) {
+          const best = visibleEntries.reduce((prev, curr) =>
+            curr.intersectionRatio > prev.intersectionRatio ? curr : prev
+          );
+          setActiveSection(`#${best.target.id}`);
+        } else if (window.scrollY < 250) {
+          setActiveSection("");
+        }
+      },
+      {
+        rootMargin: "-15% 0px -40% 0px",
+        threshold: [0.1, 0.25, 0.5],
+      }
+    );
+
+    sectionElements.forEach((el) => observer.observe(el));
+
+    const handleScroll = () => {
+      if (window.scrollY < 250) {
+        setActiveSection("");
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isHome]);
+
   // Handle smooth scroll untuk tautan anchor jika di landing page
   const handleAnchorClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     anchor: string
   ) => {
-    if (isHome && anchor.startsWith("#")) {
+    setMobileMenuOpen(false);
+    if (isHome && anchor && anchor.startsWith("#")) {
       e.preventDefault();
-      setMobileMenuOpen(false);
+      setActiveSection(anchor);
+      if (typeof window !== "undefined" && window.history.pushState) {
+        window.history.pushState(null, "", anchor);
+      }
       const targetId = anchor.replace("#", "");
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
-    } else {
-      setMobileMenuOpen(false);
     }
   };
 
@@ -126,7 +183,7 @@ export default function Navbar() {
         })
         .catch(() => {});
     }
-  }, [status, session?.user?.image]);
+  }, [status, session?.user]);
 
   // Fallback berurutan sesuai ARCHITECTURE & UI specifications
   const profileImage =
@@ -165,16 +222,35 @@ export default function Navbar() {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-7 text-xs font-mono text-muted-fg">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.label}
-              href={isHome ? item.anchor : item.href}
-              onClick={(e) => handleAnchorClick(e, item.anchor)}
-              className="hover:text-foreground transition-colors cursor-pointer py-1"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const itemHref = isHome && item.anchor ? item.anchor : item.href;
+            const isActive = isHome
+              ? Boolean(item.anchor && activeSection === item.anchor)
+              : pathname === item.href;
+
+            return (
+              <Link
+                key={item.label}
+                href={itemHref}
+                onClick={(e) => handleAnchorClick(e, item.anchor)}
+                className={cn(
+                  "transition-colors cursor-pointer py-1 relative",
+                  isActive
+                    ? "text-primary font-semibold"
+                    : "text-muted-fg hover:text-foreground"
+                )}
+              >
+                {item.label}
+                {isActive && (
+                  <motion.span
+                    layoutId="navbar-active-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Desktop Right Actions */}
@@ -182,7 +258,12 @@ export default function Navbar() {
           <ThemeToggle />
 
           {/* Desktop Right Actions: Optimistic Rendering (Zero Layout Shift) */}
-          {status === "authenticated" && session ? (
+          {status === "loading" ? (
+            <div className="flex items-center gap-2 animate-pulse" aria-hidden="true">
+              <div className="w-28 h-8 rounded-xl bg-surface/80 border border-white/5" />
+              <div className="w-9 h-9 rounded-full bg-surface/80 border border-white/5" />
+            </div>
+          ) : status === "authenticated" && session ? (
             <div className="flex items-center gap-2">
               <MagneticButton
                 id="nav-dashboard-btn"
@@ -203,7 +284,7 @@ export default function Navbar() {
                   onClick={() => setAccountMenuOpen((prev) => !prev)}
                   aria-expanded={accountMenuOpen}
                   aria-label="Menu akun pengguna"
-                  className="flex items-center gap-1.5 p-1 rounded-full hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer group"
+                  className="flex items-center gap-1.5 p-1 rounded-full hover:bg-surface border border-transparent hover:border-border transition-colors cursor-pointer group min-w-[44px] min-h-[44px] justify-center"
                 >
                   <div className="relative">
                     <Avatar className="w-8 h-8 border border-primary/40 group-hover:border-primary transition-colors bg-surface shadow-sm">
@@ -321,7 +402,7 @@ export default function Navbar() {
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             aria-label={mobileMenuOpen ? "Tutup menu" : "Buka menu"}
-            className="p-2 rounded-lg text-muted-fg hover:text-foreground hover:bg-surface/60 border border-border/50 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-muted-fg hover:text-foreground hover:bg-surface/60 border border-border/50 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer"
           >
             {mobileMenuOpen ? (
               <X className="w-5 h-5 text-primary" />
@@ -346,22 +427,45 @@ export default function Navbar() {
             <div className="px-5 py-6 space-y-4">
               {/* Mobile Navigation Links */}
               <div className="flex flex-col space-y-2">
-                {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.label}
-                    href={isHome ? item.anchor : item.href}
-                    onClick={(e) => handleAnchorClick(e, item.anchor)}
-                    className="px-3 py-2.5 rounded-lg text-sm font-mono text-muted-fg hover:text-foreground hover:bg-surface/50 transition-colors flex items-center justify-between"
-                  >
-                    <span>{item.label}</span>
-                    <ChevronRight className="w-4 h-4 text-muted-fg/60" />
-                  </Link>
-                ))}
+                {NAV_ITEMS.map((item) => {
+                  const itemHref = isHome && item.anchor ? item.anchor : item.href;
+                  const isActive = isHome
+                    ? Boolean(item.anchor && activeSection === item.anchor)
+                    : pathname === item.href;
+
+                  return (
+                    <Link
+                      key={item.label}
+                      href={itemHref}
+                      onClick={(e) => handleAnchorClick(e, item.anchor)}
+                      className={cn(
+                        "px-3 py-2.5 rounded-lg text-sm font-mono transition-colors flex items-center justify-between",
+                        isActive
+                          ? "text-primary font-semibold bg-primary/10 border border-primary/20"
+                          : "text-muted-fg hover:text-foreground hover:bg-surface/50"
+                      )}
+                    >
+                      <span>{item.label}</span>
+                      <ChevronRight className="w-4 h-4 text-muted-fg/60" />
+                    </Link>
+                  );
+                })}
               </div>
 
               <div className="border-t border-border/50 pt-4">
                 {/* Mobile Auth Actions: Optimistic Rendering */}
-                {status === "authenticated" && session ? (
+                {status === "loading" ? (
+                  <div className="p-3 rounded-xl bg-surface/50 border border-border/60 animate-pulse space-y-3" aria-hidden="true">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-full bg-surface-hover/70" />
+                      <div className="space-y-1.5 flex-1">
+                        <div className="w-24 h-3 bg-surface-hover/70 rounded" />
+                        <div className="w-32 h-2.5 bg-surface-hover/70 rounded" />
+                      </div>
+                    </div>
+                    <div className="w-full h-9 rounded-xl bg-surface-hover/70" />
+                  </div>
+                ) : status === "authenticated" && session ? (
                   <div className="space-y-3">
                     {/* Kartu Profil Mobile */}
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-surface/50 border border-border/60">

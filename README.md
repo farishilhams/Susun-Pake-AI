@@ -28,6 +28,8 @@ This project uses:
 - **MongoDB Atlas & Mongoose** for cloud database persistence
 - **NextAuth.js** for dual-method authentication (Credentials & Google OAuth)
 - **Multi-Provider AI Router** with streaming fallback (Gemini 2.5 Flash, Groq, OpenRouter)
+- **Katalog Template Starter Codebase** with stack tags filter, direct GitHub integration, and admin portal
+- **Konsultasi AI Chatbot** with streaming responses for architecture decisions, stack trade-offs, and product strategy
 
 ## Learn More
 

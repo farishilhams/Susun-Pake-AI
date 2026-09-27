@@ -15,21 +15,26 @@ export type StreamCallback = (chunk: string) => void;
 export type ProviderOptions = {
   onToken?: StreamCallback;
   aiMode?: "flash" | "deep";
+  modelId?: string;
+  extendedReasoning?: boolean;
 };
 
 // Daftar model Gemini aktif di AI Studio
 export const GEMINI_MODELS_FLASH = [
   "gemini-2.5-flash",
+  "gemini-1.5-flash",
   "gemini-2.5-flash-lite",
   "gemini-3.6-flash",
+  "gemini-1.5-pro",
   "gemini-2.5-pro",
 ] as const;
 
 export const GEMINI_MODELS_DEEP = [
+  "gemini-1.5-pro",
   "gemini-2.5-pro",
   "gemini-2.5-flash",
+  "gemini-1.5-flash",
   "gemini-3.6-flash",
-  "gemini-2.5-flash-lite",
 ] as const;
 
 export const GEMINI_MODELS = GEMINI_MODELS_FLASH;
@@ -54,11 +59,27 @@ export async function callGemini(
 
   const genAI = new GoogleGenerativeAI(apiKey);
   let lastError: unknown = null;
-  const modelsToTry = opts?.aiMode === "deep" ? GEMINI_MODELS_DEEP : GEMINI_MODELS_FLASH;
+  const isDeep = opts?.aiMode === "deep" || Boolean(opts?.extendedReasoning);
+  const baseCandidates = isDeep ? GEMINI_MODELS_DEEP : GEMINI_MODELS_FLASH;
+  const modelsToTry: string[] = [...baseCandidates];
+
+  // Jika user secara spesifik memilih model Gemini dari katalog, prioritaskan di urutan pertama
+  if (opts?.modelId && opts.modelId.startsWith("gemini-")) {
+    const existingIdx = modelsToTry.indexOf(opts.modelId);
+    if (existingIdx > -1) {
+      modelsToTry.splice(existingIdx, 1);
+    }
+    modelsToTry.unshift(opts.modelId);
+  }
 
   for (const modelName of modelsToTry) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName });
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          temperature: opts?.extendedReasoning ? 0.3 : 0.7,
+        },
+      });
 
       if (opts?.onToken) {
         // Mode streaming: emit token ke callback satu-per-satu

@@ -22,6 +22,8 @@ import { z } from "zod";
 const chatSchema = z.object({
   projectId: z.string().min(1),
   message: z.string().min(1).max(2000),
+  modelId: z.string().optional(),
+  extendedReasoning: z.boolean().optional(),
   aiMode: z.enum(["flash", "deep"]).optional().default("flash"),
   model: z.string().optional(),
 });
@@ -51,9 +53,10 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { projectId, message, aiMode, model } = parsed.data;
+  const { projectId, message, modelId, extendedReasoning, aiMode, model } = parsed.data;
+  const effectiveModelId = modelId || model;
   const effectiveMode: "flash" | "deep" =
-    model === "deep" || aiMode === "deep" ? "deep" : "flash";
+    extendedReasoning || model === "deep" || aiMode === "deep" ? "deep" : "flash";
 
   // 2. Fetch project & validasi kepemilikan (cegah IDOR)
   let project: Awaited<ReturnType<typeof Project.findOne>>;
@@ -133,10 +136,22 @@ export async function POST(req: NextRequest) {
 
       try {
         fullResponse = await generateWithFallback(interviewPrompt, {
+          modelId: effectiveModelId,
+          extendedReasoning,
           aiMode: effectiveMode,
           onToken: (chunk) => {
             controller.enqueue(
               encoder.encode(formatSSEEvent("chat:token", { chunk }))
+            );
+          },
+          onFallback: (fallbackInfo) => {
+            controller.enqueue(
+              encoder.encode(
+                formatSSEEvent("chat:fallback", {
+                  message: `Model utama sibuk, dialihkan sementara ke ${fallbackInfo.fallbackModel || fallbackInfo.fallbackProvider}`,
+                  ...fallbackInfo,
+                })
+              )
             );
           },
         });

@@ -8,9 +8,11 @@
 // tanpa mendiskusikan dengan user (ARCHITECTURE.md § 2)
 // ============================================================
 
-import { callGemini, StreamCallback } from "./gemini";
+import { callGemini, StreamCallback, ProviderOptions } from "./gemini";
 import { callGroq } from "./groq";
 import { callOpenRouterFree } from "./openrouter";
+import { getModelById } from "./catalog";
+import { AIProviderName } from "./types";
 
 export class AllProvidersExhaustedError extends Error {
   public details: string;
@@ -38,19 +40,30 @@ export function isRateLimitError(err: unknown): boolean {
   return false;
 }
 
-export type ProviderName = "gemini" | "groq" | "openrouter";
+export type ProviderName = AIProviderName;
 export type AiMode = "flash" | "deep";
+
+export interface FallbackEventData {
+  originalProvider: ProviderName;
+  fallbackProvider: ProviderName;
+  originalModel?: string;
+  fallbackModel?: string;
+  reason: string;
+}
 
 export type GenerateOptions = {
   onToken?: StreamCallback;
   aiMode?: AiMode;
+  modelId?: string;
+  extendedReasoning?: boolean;
   preferredProvider?: ProviderName;
   onProviderUsed?: (provider: ProviderName) => void;
+  onFallback?: (info: FallbackEventData) => void;
 };
 
 type ProviderFn = (
   prompt: string,
-  opts?: { onToken?: StreamCallback; aiMode?: AiMode }
+  opts?: ProviderOptions
 ) => Promise<string>;
 
 const PROVIDER_DEFINITIONS: { id: ProviderName; name: string; fn: ProviderFn }[] = [
@@ -94,10 +107,11 @@ export async function checkProviderHealth(preferred?: ProviderName): Promise<Pro
 
 /**
  * Generate teks dengan fallback otomatis antar provider.
- * Mendukung preferredProvider (Sticky Provider) dan aiMode (Flash vs Deep).
+ * Mendukung modelId spesifik dari katalog, preferredProvider (Sticky Provider),
+ * extendedReasoning, dan aiMode (Flash vs Deep).
  *
  * Urutan coba default:
- * 1. Gemini via AI Studio (utama, gratis, tanpa billing)
+ * 1. Provider model yang dipilih user / Gemini via AI Studio (utama, gratis, tanpa billing)
  * 2. Groq (fallback pertama, sangat cepat via LPU)
  * 3. OpenRouter model gratis (fallback kedua)
  */
@@ -105,10 +119,14 @@ export async function generateWithFallback(
   prompt: string,
   opts?: GenerateOptions
 ): Promise<string> {
-  // Susun daftar provider sesuai prioritas (preferredProvider di posisi pertama)
+  // Evaluasi provider target dari katalog jika modelId tersedia
+  const selectedModelDef = opts?.modelId ? getModelById(opts.modelId) : undefined;
+  const targetProvider = selectedModelDef ? selectedModelDef.provider : opts?.preferredProvider;
+
+  // Susun daftar provider sesuai prioritas
   const providerList = [...PROVIDER_DEFINITIONS];
-  if (opts?.preferredProvider) {
-    const prefIdx = providerList.findIndex((p) => p.id === opts.preferredProvider);
+  if (targetProvider) {
+    const prefIdx = providerList.findIndex((p) => p.id === targetProvider);
     if (prefIdx > -1) {
       const [preferredItem] = providerList.splice(prefIdx, 1);
       providerList.unshift(preferredItem);
@@ -117,31 +135,59 @@ export async function generateWithFallback(
 
   const errorLog: string[] = [];
 
-  for (const { id, name, fn } of providerList) {
+  for (let i = 0; i < providerList.length; i++) {
+    const currentProvider = providerList[i];
+    const isFirstAttempt = i === 0;
+
+    // Untuk provider pertama, jika cocok dengan model terpilih, kirimkan modelId & extendedReasoning
+    const providerOpts: ProviderOptions = {
+      onToken: opts?.onToken,
+      aiMode: opts?.aiMode,
+      extendedReasoning: opts?.extendedReasoning,
+      modelId: (isFirstAttempt && selectedModelDef && selectedModelDef.provider === currentProvider.id)
+        ? selectedModelDef.id
+        : undefined,
+    };
+
     try {
-      console.log(`[AI Router] Mencoba provider: ${name} (mode: ${opts?.aiMode ?? "flash"})...`);
-      const result = await fn(prompt, {
-        onToken: opts?.onToken,
-        aiMode: opts?.aiMode,
-      });
-      console.log(`[AI Router] Sukses mendapatkan respon dari: ${name}`);
+      console.log(
+        `[AI Router] Mencoba provider: ${currentProvider.name} (model: ${
+          providerOpts.modelId ?? "default-chain"
+        }, mode: ${opts?.aiMode ?? "flash"}, reasoning: ${Boolean(opts?.extendedReasoning)})...`
+      );
+
+      const result = await currentProvider.fn(prompt, providerOpts);
+      console.log(`[AI Router] Sukses mendapatkan respon dari: ${currentProvider.name}`);
 
       // Notifikasi provider yang berhasil digunakan (untuk sticky lock)
-      opts?.onProviderUsed?.(id);
+      opts?.onProviderUsed?.(currentProvider.id);
       return result;
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      errorLog.push(`${name}: ${errMsg.slice(0, 120)}`);
+      errorLog.push(`${currentProvider.name}: ${errMsg.slice(0, 120)}`);
 
       if (isRateLimitError(err)) {
         console.warn(
-          `[AI Router] Provider ${name} terkena rate-limit (429). Mencoba provider berikutnya...`
+          `[AI Router] Provider ${currentProvider.name} terkena rate-limit (429). Mencoba provider cadangan...`
         );
       } else {
         console.warn(
-          `[AI Router] Provider ${name} gagal (${errMsg.slice(0, 100)}). Mencoba provider berikutnya...`
+          `[AI Router] Provider ${currentProvider.name} gagal (${errMsg.slice(0, 100)}). Mencoba provider cadangan...`
         );
       }
+
+      // Jika masih ada provider cadangan berikutnya, beritahu fallback callback
+      const nextProvider = providerList[i + 1];
+      if (nextProvider && opts?.onFallback) {
+        opts.onFallback({
+          originalProvider: currentProvider.id,
+          fallbackProvider: nextProvider.id,
+          originalModel: selectedModelDef?.name ?? currentProvider.name,
+          fallbackModel: nextProvider.name,
+          reason: isRateLimitError(err) ? "Rate Limit (429)" : "Server Busy / Error",
+        });
+      }
+
       continue;
     }
   }

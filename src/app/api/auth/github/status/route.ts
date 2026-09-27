@@ -3,7 +3,6 @@
 // Cek status koneksi GitHub & fitur disconnect
 // ============================================================
 
-import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { requireAuth, isSession } from "@/lib/auth";

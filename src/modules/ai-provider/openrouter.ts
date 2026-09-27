@@ -5,30 +5,34 @@
 // dan CLAUDE.md § 7 Larangan Eksplisit
 // ============================================================
 
-import { StreamCallback, ProviderOptions } from "./gemini";
+import type { ProviderOptions } from "./gemini";
+import { resolveModelId } from "./catalog";
 
 const BASE_URL = "https://openrouter.ai/api/v1";
 
-// Model gratis aktif di OpenRouter
+// Model gratis aktif & terverifikasi di OpenRouter
 export const FREE_MODELS_FLASH = [
   "openrouter/free",
   "qwen/qwen3.8-27b:free",
   "google/gemma-4-26b-a4b-it:free",
   "nvidia/nemotron-3.5-lightning:free",
-  "google/gemma-4-31b-it:free",
-  "z-ai/glm-5.2:free",
 ] as const;
 
 export const FREE_MODELS_DEEP = [
-  "deepseek/deepseek-r1:free",
-  "deepseek/deepseek-r1-distill-llama-70b:free",
   "openrouter/free",
   "qwen/qwen3.8-27b:free",
   "google/gemma-4-26b-a4b-it:free",
-  "z-ai/glm-5.2:free",
 ] as const;
 
 export const FREE_MODELS = FREE_MODELS_FLASH;
+
+// Memory cache untuk model yang 404 / rate limit berkepanjangan
+const openrouterDisabledModels = new Set<string>([
+  "deepseek/deepseek-r1:free",
+  "qwen/qwen-2.5-coder-32b-instruct:free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "deepseek/deepseek-r1-distill-llama-70b:free",
+]);
 
 /**
  * Generate teks dengan OpenRouter, menggunakan model gratis saja.
@@ -49,9 +53,35 @@ export async function callOpenRouterFree(
   }
 
   let lastError: unknown = null;
-  const modelsToTry = opts?.aiMode === "deep" ? FREE_MODELS_DEEP : FREE_MODELS_FLASH;
+  const isDeep = opts?.aiMode === "deep" || Boolean(opts?.extendedReasoning);
+  const baseCandidates = isDeep ? FREE_MODELS_DEEP : FREE_MODELS_FLASH;
+  const modelsToTry: string[] = [...baseCandidates];
 
-  for (const model of modelsToTry) {
+  // Resolusi model lama atau alias jika user memilih dari katalog
+  const resolvedModel = resolveModelId(opts?.modelId);
+
+  // Jika user memilih model spesifik OpenRouter dari katalog dan valid gratis
+  if (
+    resolvedModel &&
+    (resolvedModel.endsWith(":free") || resolvedModel === "openrouter/free")
+  ) {
+    const existingIdx = modelsToTry.indexOf(resolvedModel);
+    if (existingIdx > -1) {
+      modelsToTry.splice(existingIdx, 1);
+    }
+    modelsToTry.unshift(resolvedModel);
+  }
+
+  // Filter model: singkirkan model yang sudah terbukti 404/disabled
+  const activeCandidates = modelsToTry.filter(
+    (model) => !openrouterDisabledModels.has(model)
+  );
+
+  if (activeCandidates.length === 0) {
+    activeCandidates.push("openrouter/free");
+  }
+
+  for (const model of activeCandidates) {
     try {
       const result = await callWithModel(model, prompt, apiKey, opts);
       if (result.trim()) {
@@ -60,6 +90,17 @@ export async function callOpenRouterFree(
     } catch (err) {
       lastError = err;
       const errMsg = err instanceof Error ? err.message : String(err);
+
+      // Jika 404 atau 400 (model decommissioned / not found), tambahkan ke blacklist
+      if (
+        errMsg.includes("404") ||
+        errMsg.includes("not found") ||
+        errMsg.includes("does not exist") ||
+        errMsg.includes("400")
+      ) {
+        openrouterDisabledModels.add(model);
+      }
+
       console.warn(
         `[OpenRouter] Model ${model} gagal: ${errMsg.slice(0, 160)}. Mencoba model gratis berikutnya...`
       );
@@ -76,9 +117,21 @@ async function callWithModel(
   model: string,
   prompt: string,
   apiKey: string,
-  opts?: { onToken?: StreamCallback }
+  opts?: ProviderOptions
 ): Promise<string> {
   const isStreaming = Boolean(opts?.onToken);
+
+  const payload: Record<string, unknown> = {
+    model,
+    messages: [{ role: "user", content: prompt }],
+    stream: isStreaming,
+    max_tokens: 8192,
+    temperature: opts?.extendedReasoning ? 0.3 : 0.7,
+  };
+
+  if (opts?.extendedReasoning) {
+    payload.reasoning = { effort: "high" };
+  }
 
   const response = await fetch(`${BASE_URL}/chat/completions`, {
     method: "POST",
@@ -89,13 +142,7 @@ async function callWithModel(
       "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
       "X-Title": "Susun Pake AI",
     },
-    body: JSON.stringify({
-      model,
-      messages: [{ role: "user", content: prompt }],
-      stream: isStreaming,
-      max_tokens: 8192,
-      temperature: 0.7,
-    }),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {

@@ -80,6 +80,7 @@ export const authOptions: AuthOptions = {
           avatar_url: resolvedImage,
           avatarUrl: resolvedImage,
           sessionVersion: user.sessionVersion ?? 0,
+          role: user.role || "user",
         };
       },
     }),
@@ -164,6 +165,9 @@ export const authOptions: AuthOptions = {
         token.sessionVersion = user.sessionVersion ?? 0;
         token.name = user.name;
         token.email = user.email;
+        if (user.role) {
+          token.role = user.role;
+        }
         const userAvatar =
           user.image ||
           (user as any).avatar_url ||
@@ -215,6 +219,7 @@ export const authOptions: AuthOptions = {
             token.id = dbUser._id.toString();
             token.userId = dbUser._id.toString();
             token.sessionVersion = dbUser.sessionVersion ?? 0;
+            token.role = dbUser.role || "user";
             token.name = dbUser.name || token.name;
             const dbAvatar =
               dbUser.image ||
@@ -239,7 +244,7 @@ export const authOptions: AuthOptions = {
           await connectDB();
           const currentId = token.userId || token.id;
           const dbUser = await User.findById(currentId)
-            .select("sessionVersion name avatarUrl image avatar_url")
+            .select("sessionVersion name avatarUrl image avatar_url role")
             .lean();
 
           if (
@@ -253,6 +258,9 @@ export const authOptions: AuthOptions = {
 
           if (dbUser.name) {
             token.name = dbUser.name;
+          }
+          if (dbUser.role) {
+            token.role = dbUser.role;
           }
 
           const dbAvatar =
@@ -288,6 +296,7 @@ export const authOptions: AuthOptions = {
         session.user.image = userPic;
         session.user.avatarUrl = userPic;
         session.user.avatar_url = userPic;
+        session.user.role = (token.role as string) || "user";
       }
       return session;
     },

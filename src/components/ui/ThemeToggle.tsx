@@ -41,7 +41,7 @@ export default function ThemeToggle({
       id="theme-toggle-btn"
       type="button"
       onClick={toggleTheme}
-      className={`relative inline-flex items-center justify-center gap-2 p-2 rounded-xl border border-border/80 bg-surface/80 hover:bg-surface text-muted-fg hover:text-foreground transition-colors shadow-sm select-none cursor-pointer ${className}`}
+      className={`relative inline-flex items-center justify-center gap-2 p-2 min-w-[44px] min-h-[44px] rounded-xl border border-border/80 bg-surface/80 hover:bg-surface text-muted-fg hover:text-foreground transition-colors shadow-sm select-none cursor-pointer ${className}`}
       title={isDark ? "Beralih ke Mode Terang" : "Beralih ke Mode Gelap"}
       aria-label="Toggle theme"
     >

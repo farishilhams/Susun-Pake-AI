@@ -17,6 +17,7 @@ import {
   X,
   ChatText,
 } from "@phosphor-icons/react";
+import { ModelSelector } from "@/components/ui/model-selector";
 
 interface ChatMsg {
   id: string;
@@ -44,6 +45,9 @@ export default function RefinementChat({
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedModelId, setSelectedModelId] = useState<string>("gemini-2.5-flash");
+  const [extendedReasoning, setExtendedReasoning] = useState<boolean>(false);
+  const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -92,6 +96,8 @@ export default function RefinementChat({
           projectId,
           message: text,
           targetFileType: activeFileType,
+          modelId: selectedModelId,
+          extendedReasoning,
         }),
         signal: abortRef.current.signal,
       });
@@ -121,6 +127,13 @@ export default function RefinementChat({
           try {
             const evt = JSON.parse(dataStr);
 
+            // Event fallback
+            if (evt.originalProvider && evt.fallbackProvider) {
+              setFallbackNotice(
+                evt.message || `Model dialihkan sementara ke ${evt.fallbackModel || evt.fallbackProvider}`
+              );
+            }
+
             if (evt.chunk !== undefined) {
               fullChat += evt.chunk;
               updateLastAssistant(fullChat, true);
@@ -149,7 +162,7 @@ export default function RefinementChat({
       setIsSending(false);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [input, isSending, projectId, activeFileType, onFileUpdated]);
+  }, [input, isSending, projectId, activeFileType, onFileUpdated, selectedModelId, extendedReasoning]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -193,12 +206,42 @@ export default function RefinementChat({
             id="close-refine-btn"
             type="button"
             onClick={onClose}
-            className="p-1 rounded transition-colors"
+            className="p-1 rounded transition-colors cursor-pointer"
             style={{ color: "var(--muted-fg)" }}
           >
             <X size={14} />
           </button>
         </div>
+
+        {/* Control Bar: Model Selector */}
+        <div
+          className="px-3 py-2 border-b flex items-center justify-between gap-2 flex-shrink-0 bg-surface/50"
+          style={{ borderColor: "var(--border-color)" }}
+        >
+          <span className="text-[10px] font-mono text-muted-fg">Model AI:</span>
+          <ModelSelector
+            selectedModelId={selectedModelId}
+            onSelectModel={setSelectedModelId}
+            extendedReasoning={extendedReasoning}
+            onToggleExtendedReasoning={setExtendedReasoning}
+            disabled={isSending}
+            align="end"
+          />
+        </div>
+
+        {/* Fallback Notice */}
+        {fallbackNotice && (
+          <div className="mx-3 mt-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] flex items-center justify-between animate-in fade-in">
+            <span className="truncate">{fallbackNotice}</span>
+            <button
+              type="button"
+              onClick={() => setFallbackNotice(null)}
+              className="text-amber-400 hover:text-white font-bold ml-1.5 cursor-pointer leading-none text-xs"
+            >
+              &times;
+            </button>
+          </div>
+        )}
 
         {/* Hint awal */}
         {messages.length === 0 && (

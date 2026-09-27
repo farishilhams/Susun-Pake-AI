@@ -26,7 +26,7 @@ function useAvatarContext() {
   return context;
 }
 
-export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {}
+export type AvatarProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
   ({ className, children, ...props }, ref) => {

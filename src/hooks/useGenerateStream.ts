@@ -14,7 +14,7 @@
 // Reconnect diimplementasi manual.
 // ============================================================
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 export interface FileStatus {
   fileType: string;
@@ -27,6 +27,8 @@ export type StreamPhase = "idle" | "connecting" | "streaming" | "done" | "error"
 interface UseGenerateStreamOptions {
   projectId: string;
   aiMode?: "flash" | "deep";
+  modelId?: string;
+  extendedReasoning?: boolean;
   onFileUpdate?: (fileType: string, status: FileStatus["status"], content?: string) => void;
   onDone?: () => void;
   onError?: (message: string) => void;
@@ -48,6 +50,8 @@ function calcBackoff(attempt: number): number {
 export function useGenerateStream({
   projectId,
   aiMode = "flash",
+  modelId,
+  extendedReasoning = false,
   onFileUpdate,
   onDone,
   onError,
@@ -58,6 +62,8 @@ export function useGenerateStream({
   const abortRef = useRef<AbortController | null>(null);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRunningRef = useRef(false);
+  const activeModelIdRef = useRef<string | undefined>(modelId);
+  const activeExtendedReasoningRef = useRef<boolean>(extendedReasoning);
 
   // Satu kali start: inisialisasi 8 file status
   const initFileStatuses = useCallback(() => {
@@ -77,6 +83,10 @@ export function useGenerateStream({
     [onFileUpdate]
   );
 
+  const startStreamRef = useRef<(attempt: number) => Promise<void>>(
+    null as unknown as (attempt: number) => Promise<void>
+  );
+
   // Core streaming function — dipanggil juga saat reconnect
   const startStream = useCallback(
     async (attempt: number) => {
@@ -89,7 +99,12 @@ export function useGenerateStream({
         const res = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ projectId, aiMode }),
+          body: JSON.stringify({
+            projectId,
+            aiMode,
+            modelId: activeModelIdRef.current,
+            extendedReasoning: activeExtendedReasoningRef.current,
+          }),
           signal: abortRef.current.signal,
         });
 
@@ -183,7 +198,7 @@ export function useGenerateStream({
 
           retryTimerRef.current = setTimeout(() => {
             if (isRunningRef.current) {
-              startStream(attempt + 1);
+              startStreamRef.current?.(attempt + 1);
             }
           }, delay);
         } else {
@@ -194,11 +209,22 @@ export function useGenerateStream({
         }
       }
     },
-    [projectId, updateStatus, onDone, onError]
+    [projectId, aiMode, updateStatus, onDone, onError]
   );
 
-  const start = useCallback(() => {
+  useEffect(() => {
+    startStreamRef.current = startStream;
+  }, [startStream]);
+
+  const start = useCallback((opts?: { modelId?: string; extendedReasoning?: boolean }) => {
     if (isRunningRef.current) return;
+
+    if (opts?.modelId !== undefined) {
+      activeModelIdRef.current = opts.modelId;
+    }
+    if (opts?.extendedReasoning !== undefined) {
+      activeExtendedReasoningRef.current = opts.extendedReasoning;
+    }
 
     isRunningRef.current = true;
     setRetryCount(0);

@@ -69,3 +69,67 @@ export async function getRemainingQuota(
     limit,
   };
 }
+
+/**
+ * Cek apakah user masih dalam batas kuota konsultasi AI harian.
+ * Terpisah dari kuota generate dokumen sesuai PRD & ARCHITECTURE.md § 2.3
+ *
+ * @param userId - MongoDB ObjectId user sebagai string
+ * @param limit  - Maksimal sesi tanya-jawab konsultasi per hari (default: 20)
+ */
+export async function checkDailyConsultationQuota(
+  userId: string,
+  limit = 20
+): Promise<boolean> {
+  await connectDB();
+
+  const today = getUTCDateString();
+
+  const existing = await UsageLog.findOne({ userId, date: today });
+
+  if (existing && (existing.consultationCount ?? 0) >= limit) {
+    return false;
+  }
+
+  await UsageLog.updateOne(
+    { userId, date: today },
+    { $inc: { consultationCount: 1 } },
+    { upsert: true }
+  );
+
+  return true;
+}
+
+/**
+ * Ambil sisa kuota konsultasi user hari ini.
+ * Berguna untuk ditampilkan di UI badge chat konsultasi.
+ */
+export async function getRemainingConsultationQuota(
+  userId: string,
+  limit = 20
+): Promise<{ used: number; remaining: number; limit: number }> {
+  await connectDB();
+
+  const today = getUTCDateString();
+  const usage = await UsageLog.findOne({ userId, date: today });
+  const used = usage?.consultationCount ?? 0;
+
+  return {
+    used,
+    remaining: Math.max(0, limit - used),
+    limit,
+  };
+}
+
+/**
+ * Refund kuota konsultasi user jika AI gagal merespons atau terjadi error stream.
+ * Mencegah kuota harian terbuang sia-sia akibat kendala jaringan atau server AI.
+ */
+export async function refundConsultationQuota(userId: string): Promise<void> {
+  await connectDB();
+  const today = getUTCDateString();
+  await UsageLog.updateOne(
+    { userId, date: today, consultationCount: { $gt: 0 } },
+    { $inc: { consultationCount: -1 } }
+  );
+}

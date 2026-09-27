@@ -19,6 +19,7 @@ export interface IUserDocument extends Document {
   githubAccessToken?: string | null;
   githubUsername?: string | null;
   githubConnectedAt?: Date | null;
+  role?: "user" | "admin";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,6 +57,11 @@ const UserSchema = new Schema<IUserDocument>(
       type: String,
       required: true,
       trim: true,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
     },
     image: {
       type: String,

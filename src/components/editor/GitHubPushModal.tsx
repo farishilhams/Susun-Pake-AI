@@ -18,6 +18,7 @@ import {
   ArrowSquareOut,
   Plus,
 } from "@phosphor-icons/react";
+import { ConfirmModal } from "@/components/ui";
 
 interface RepoItem {
   id: number;
@@ -75,6 +76,8 @@ export default function GitHubPushModal({
     filesPushed: number;
   } | null>(null);
   const [pushError, setPushError] = useState<string | null>(null);
+  const [isDisconnectConfirmOpen, setIsDisconnectConfirmOpen] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   // Check connection status
   const checkStatus = async () => {
@@ -169,16 +172,24 @@ export default function GitHubPushModal({
     }
   };
 
-  // Handle Disconnect
-  const handleDisconnect = async () => {
-    if (!window.confirm("Putuskan tautan akun GitHub dari Susun Pake AI?")) return;
+  // Handle Disconnect Modal Open
+  const handleDisconnect = () => {
+    setIsDisconnectConfirmOpen(true);
+  };
+
+  // Confirm Disconnect Execution
+  const handleConfirmDisconnect = async () => {
+    setIsDisconnecting(true);
     try {
       await fetch("/api/auth/github/status", { method: "DELETE" });
       setIsConnected(false);
       setGithubUsername(null);
       setRepos([]);
+      setIsDisconnectConfirmOpen(false);
     } catch (err) {
       console.error("Error disconnecting GitHub:", err);
+    } finally {
+      setIsDisconnecting(false);
     }
   };
 
@@ -544,6 +555,24 @@ export default function GitHubPushModal({
           )}
         </div>
       </motion.div>
+
+      {/* Modal Konfirmasi Putuskan Tautan GitHub */}
+      <ConfirmModal
+        isOpen={isDisconnectConfirmOpen}
+        onClose={() => !isDisconnecting && setIsDisconnectConfirmOpen(false)}
+        onConfirm={handleConfirmDisconnect}
+        title="Putuskan Tautan Akun GitHub?"
+        description={
+          <span>
+            Akun GitHub <strong className="text-foreground">@{githubUsername}</strong> akan
+            diputuskan dari Susun Pake AI. Token akses akan dihapus dengan aman dari basis data.
+          </span>
+        }
+        confirmText="Putuskan Tautan"
+        cancelText="Batal"
+        variant="unlink"
+        isLoading={isDisconnecting}
+      />
     </div>
   );
 }

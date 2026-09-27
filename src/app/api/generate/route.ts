@@ -24,6 +24,8 @@ import { z } from "zod";
 
 const generateSchema = z.object({
   projectId: z.string().min(1),
+  modelId: z.string().optional(),
+  extendedReasoning: z.boolean().optional(),
   aiMode: z.enum(["flash", "deep"]).optional(),
 });
 
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { projectId, aiMode = "flash" } = parsed.data;
+  const { projectId, modelId, extendedReasoning, aiMode = "flash" } = parsed.data;
 
   // ─── LANGKAH 2: Rate Limit (SEBELUM stream dibuka) ──────────
   // Sesuai ARCHITECTURE.md § 7.4 dan SKILL.md § Rate Limiter
@@ -159,6 +161,8 @@ export async function POST(req: NextRequest) {
             clarifications,
             summaryNote,
           },
+          modelId,
+          extendedReasoning,
           aiMode,
           pacingDelayMs: 1200,
           onFileStart: (fileType, provider) => {
@@ -167,6 +171,12 @@ export async function POST(req: NextRequest) {
           },
           onFileToken: (fileType, chunk) => {
             send("file:token", { fileType, chunk });
+          },
+          onFallback: (info) => {
+            send("file:fallback", {
+              ...info,
+              message: `Model utama sibuk pada file ${info.fileType}, dialihkan sementara ke ${info.fallbackProvider}`,
+            });
           },
           onFileComplete: async (fileType, content) => {
             // Simpan ke database (upsert jika sudah ada) & catat version snapshot

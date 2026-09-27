@@ -7,7 +7,7 @@
 // Sesuai ARCHITECTURE.md § 7.2 & 7.4
 // ============================================================
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface ChatMessage {
   id: string;
@@ -27,13 +27,17 @@ function calcBackoff(attempt: number): number {
 
 export function useChatStream(
   projectId: string,
-  initialAiMode: "flash" | "deep" = "flash"
+  initialAiMode: "flash" | "deep" = "flash",
+  initialModelId: string = "gemini-2.5-flash"
 ) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInterviewDone, setIsInterviewDone] = useState(false);
   const [aiMode, setAiMode] = useState<"flash" | "deep">(initialAiMode);
+  const [selectedModelId, setSelectedModelId] = useState<string>(initialModelId);
+  const [extendedReasoning, setExtendedReasoning] = useState<boolean>(false);
+  const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
   const inFlightRef = useRef(false);
@@ -58,6 +62,10 @@ export function useChatStream(
       return updated;
     });
   };
+
+  const sendMessageRef = useRef<
+    (userMessage: string, isFirst?: boolean, attempt?: number, overrideMode?: "flash" | "deep") => Promise<void>
+  >(null as unknown as (userMessage: string, isFirst?: boolean, attempt?: number, overrideMode?: "flash" | "deep") => Promise<void>);
 
   const sendMessage = useCallback(
     async (
@@ -100,6 +108,8 @@ export function useChatStream(
           body: JSON.stringify({
             projectId,
             message: isFirst ? "Mulai interview" : userMessage,
+            modelId: selectedModelId,
+            extendedReasoning,
             model: effectiveMode,
             aiMode: effectiveMode,
           }),
@@ -141,6 +151,14 @@ export function useChatStream(
                 return;
               }
 
+              // Event fallback dinamis antar AI provider
+              if (event.originalProvider && event.fallbackProvider) {
+                setFallbackNotice(
+                  event.message ??
+                    `Model utama sibuk, dialihkan sementara ke ${event.fallbackModel ?? event.fallbackProvider}`
+                );
+              }
+
               if (event.chunk !== undefined) {
                 fullContent += event.chunk;
                 updateLastAssistantMsg(fullContent, true);
@@ -167,7 +185,7 @@ export function useChatStream(
         if (attempt < MAX_RETRIES) {
           const delay = calcBackoff(attempt);
           setTimeout(() => {
-            sendMessage(userMessage, isFirst, attempt + 1, effectiveMode);
+            sendMessageRef.current?.(userMessage, isFirst, attempt + 1, effectiveMode);
           }, delay);
           return;
         }
@@ -187,8 +205,12 @@ export function useChatStream(
         );
       }
     },
-    [aiMode, projectId]
+    [aiMode, projectId, selectedModelId, extendedReasoning]
   );
+
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
 
   const retry = useCallback(() => {
     const { userMessage, isFirst } = lastAttemptRef.current;
@@ -213,6 +235,11 @@ export function useChatStream(
     setMessages([]);
     setIsInterviewDone(false);
     setError(null);
+    setFallbackNotice(null);
+  }, []);
+
+  const clearFallbackNotice = useCallback(() => {
+    setFallbackNotice(null);
   }, []);
 
   return {
@@ -224,6 +251,12 @@ export function useChatStream(
     setSelectedModel: setAiMode,
     aiMode,
     setAiMode,
+    selectedModelId,
+    setSelectedModelId,
+    extendedReasoning,
+    setExtendedReasoning,
+    fallbackNotice,
+    clearFallbackNotice,
     sendMessage,
     retry,
     cancel,

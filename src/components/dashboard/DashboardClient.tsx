@@ -29,8 +29,6 @@ import {
   Camera,
   Mail,
   Calendar,
-  ShieldCheck,
-  FileText,
   CheckCircle2,
   Upload,
   ArrowLeft,
@@ -1161,7 +1159,7 @@ export default function DashboardClient({
 
                   <p className="text-xs text-muted-fg leading-relaxed mb-6 font-mono">
                     Apakah kamu yakin ingin menghapus project{" "}
-                    <strong className="text-foreground">"{deleteTarget.name}"</strong>?
+                    <strong className="text-foreground">&ldquo;{deleteTarget.name}&rdquo;</strong>?
                     Seluruh 8 dokumen spesifikasi, riwayat versi snapshot, dan arsip interview
                     akan dihapus dari basis data secara permanen dan tidak dapat dipulihkan.
                   </p>

@@ -10,6 +10,7 @@ export interface IUsageLogDocument extends Document {
   userId: mongoose.Types.ObjectId;
   date: string; // format "YYYY-MM-DD" UTC
   generateCount: number;
+  consultationCount: number;
 }
 
 const UsageLogSchema = new Schema<IUsageLogDocument>(
@@ -25,6 +26,11 @@ const UsageLogSchema = new Schema<IUsageLogDocument>(
       // format: YYYY-MM-DD (UTC) — konsisten dengan getUTCDateString()
     },
     generateCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    consultationCount: {
       type: Number,
       default: 0,
       min: 0,

@@ -21,7 +21,8 @@ export async function proxy(req: NextRequest) {
   const isProtectedRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/new-project") ||
-    pathname.startsWith("/project");
+    pathname.startsWith("/project") ||
+    pathname.startsWith("/templates/admin");
 
   // Jika pengguna sudah terautentikasi dan mencoba mengakses halaman login/register,
   // alihkan langsung ke /dashboard
@@ -45,6 +46,7 @@ export const config = {
     "/dashboard/:path*",
     "/new-project/:path*",
     "/project/:path*",
+    "/templates/admin/:path*",
     "/login",
     "/register",
   ],

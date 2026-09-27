@@ -6,7 +6,7 @@
 // ============================================================
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ClockCounterClockwise,
   X,
@@ -15,6 +15,7 @@ import {
   Spinner,
   Check,
 } from "@phosphor-icons/react";
+import { ConfirmModal } from "@/components/ui";
 import DiffViewer from "./DiffViewer";
 import { FileType } from "@/types";
 
@@ -74,6 +75,8 @@ export default function VersionHistoryModal({
   const [loadingContent, setLoadingContent] = useState(false);
   const [rollbackLoading, setRollbackLoading] = useState(false);
   const [rollbackSuccessMsg, setRollbackSuccessMsg] = useState<string | null>(null);
+  const [isRollbackConfirmOpen, setIsRollbackConfirmOpen] = useState(false);
+  const [alertModal, setAlertModal] = useState<{ title: string; message: string } | null>(null);
 
   // Fetch list of versions whenever modal opens
   useEffect(() => {
@@ -115,12 +118,15 @@ export default function VersionHistoryModal({
       .finally(() => setLoadingContent(false));
   }, [isOpen, projectId, fileType, selectedVersion]);
 
-  // Handle Rollback action
-  const handleRollback = async () => {
+  // Handle Rollback modal open
+  const handleRollback = () => {
     if (selectedVersion === null || rollbackLoading) return;
+    setIsRollbackConfirmOpen(true);
+  };
 
-    const confirmMsg = `Kembalikan ${fileType}.md ke versi v${selectedVersion}? Perubahan saat ini akan dicatat sebagai riwayat baru.`;
-    if (!window.confirm(confirmMsg)) return;
+  // Confirm Rollback action
+  const handleConfirmRollback = async () => {
+    if (selectedVersion === null || rollbackLoading) return;
 
     setRollbackLoading(true);
     try {
@@ -135,16 +141,25 @@ export default function VersionHistoryModal({
 
       const json = await res.json();
       if (res.ok && json.success) {
+        setIsRollbackConfirmOpen(false);
         setRollbackSuccessMsg(`Berhasil dikembalikan ke v${selectedVersion}`);
         onRollbackSuccess(json.data.content, json.data.version);
         setTimeout(() => {
           onClose();
         }, 1200);
       } else {
-        alert(json.message || "Gagal melakukan rollback");
+        setIsRollbackConfirmOpen(false);
+        setAlertModal({
+          title: "Rollback Gagal",
+          message: json.message || "Gagal melakukan rollback",
+        });
       }
     } catch {
-      alert("Terjadi kesalahan jaringan saat melakukan rollback");
+      setIsRollbackConfirmOpen(false);
+      setAlertModal({
+        title: "Kesalahan Jaringan",
+        message: "Terjadi kesalahan jaringan saat melakukan rollback",
+      });
     } finally {
       setRollbackLoading(false);
     }
@@ -308,6 +323,36 @@ export default function VersionHistoryModal({
           </div>
         </div>
       </motion.div>
+
+      {/* Modal Konfirmasi Rollback */}
+      <ConfirmModal
+        isOpen={isRollbackConfirmOpen}
+        onClose={() => !rollbackLoading && setIsRollbackConfirmOpen(false)}
+        onConfirm={handleConfirmRollback}
+        title={`Kembalikan ke Versi v${selectedVersion}?`}
+        description={
+          <span>
+            Konten <strong className="text-foreground">{fileType}.md</strong> akan dikembalikan
+            ke versi snapshot <strong className="text-foreground">v{selectedVersion}</strong>.
+            Perubahan aktif saat ini akan tetap dicatat sebagai versi riwayat baru.
+          </span>
+        }
+        confirmText="Ya, Pulihkan Versi Ini"
+        cancelText="Batal"
+        variant="rollback"
+        isLoading={rollbackLoading}
+      />
+
+      {/* Modal Notifikasi Alert Rollback */}
+      <ConfirmModal
+        isOpen={!!alertModal}
+        onClose={() => setAlertModal(null)}
+        title={alertModal?.title || "Pemberitahuan"}
+        description={alertModal?.message || ""}
+        confirmText="Mengerti"
+        variant="warning"
+        isAlert={true}
+      />
     </div>
   );
 }

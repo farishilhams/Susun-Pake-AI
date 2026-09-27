@@ -21,10 +21,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Default ke dark mode sesuai DESIGN.md (Dark-first)
   const [theme, setThemeState] = useState<Theme>("dark");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const saved = (localStorage.getItem("susun-pake-ai-theme") ||
       localStorage.getItem("susunpakeai-theme")) as Theme | null;
     if (saved === "light" || saved === "dark") {

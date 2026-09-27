@@ -160,3 +160,23 @@ svg, canvas {
   }
 }
 
+/* Custom scrollbar khusus untuk dropdown model AI agar halus & responsif */
+.custom-model-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-model-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-model-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+.custom-model-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+/* Cegah layout shift saat Radix dropdown menu membuka */
+body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+

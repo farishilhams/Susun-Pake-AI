@@ -20,7 +20,7 @@ const createProjectSchema = z.object({
 });
 
 // GET /api/projects — daftar project milik user yang sedang login
-export async function GET(req: NextRequest) {
+export async function GET() {
   const authResult = await requireAuth();
   if (!isSession(authResult)) return authResult;
 

@@ -27,6 +27,8 @@ const refineSchema = z.object({
   projectId: z.string().min(1),
   message: z.string().min(1).max(2000),
   targetFileType: z.enum([...FILE_TYPES] as [FileType, ...FileType[]]).optional(),
+  modelId: z.string().optional(),
+  extendedReasoning: z.boolean().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { projectId, message, targetFileType } = parsed.data;
+  const { projectId, message, targetFileType, modelId, extendedReasoning } = parsed.data;
 
   // ── 3. Rate limit — SEBELUM memanggil AI ──
   await connectDB();
@@ -135,6 +137,8 @@ Instruksi:
         await generateWithFallback(
           systemPrompt,
           {
+            modelId,
+            extendedReasoning,
             onToken: (chunk: string) => {
               fullResponse += chunk;
               // Hanya stream token yang BUKAN bagian dari UPDATED_FILE tag
@@ -142,6 +146,12 @@ Instruksi:
               if (!fullResponse.includes("<UPDATED_FILE")) {
                 send("chat:token", { chunk });
               }
+            },
+            onFallback: (info) => {
+              send("chat:fallback", {
+                message: `Model utama sibuk, dialihkan sementara ke ${info.fallbackModel || info.fallbackProvider}`,
+                ...info,
+              });
             },
           }
         );

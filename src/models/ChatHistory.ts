@@ -7,10 +7,12 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IChatDocument extends Document {
-  projectId: mongoose.Types.ObjectId;
+  projectId?: mongoose.Types.ObjectId;
+  userId?: mongoose.Types.ObjectId;
   role: "user" | "assistant" | "system";
   message: string;
-  phase: "interview" | "refinement";
+  phase: "interview" | "refinement" | "consultation";
+  type?: "interview" | "refinement" | "consultation";
   createdAt: Date;
 }
 
@@ -19,7 +21,13 @@ const ChatHistorySchema = new Schema<IChatDocument>(
     projectId: {
       type: Schema.Types.ObjectId,
       ref: "Project",
-      required: true,
+      required: false,
+      index: true,
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
       index: true,
     },
     role: {
@@ -33,7 +41,12 @@ const ChatHistorySchema = new Schema<IChatDocument>(
     },
     phase: {
       type: String,
-      enum: ["interview", "refinement"],
+      enum: ["interview", "refinement", "consultation"],
+      default: "interview",
+    },
+    type: {
+      type: String,
+      enum: ["interview", "refinement", "consultation"],
       default: "interview",
     },
   },
