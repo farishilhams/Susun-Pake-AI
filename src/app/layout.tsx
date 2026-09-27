@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
@@ -14,9 +14,17 @@ export const viewport: Viewport = {
   userScalable: true,
 };
 
-// Inter — clean, professional, cocok untuk developer tool (DESIGN.md § 3)
+// Inter — clean, professional fallback
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+// IBM Plex Sans — primary body font
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: "--font-ibm-plex-sans",
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
   display: "swap",
 });
@@ -82,7 +90,7 @@ export default async function RootLayout({
     <html
       lang="id"
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable} dark h-full w-full overflow-x-hidden antialiased`}
+      className={`${ibmPlexSans.variable} ${inter.variable} ${jetbrainsMono.variable} dark h-full w-full overflow-x-hidden antialiased`}
       data-theme="dark"
     >
       <head>

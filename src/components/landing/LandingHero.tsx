@@ -96,6 +96,34 @@ export default function LandingHero() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+      <style>{`
+        @keyframes float-file-1 {
+          0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+          50% { transform: translate3d(0, -6px, 0) rotate(-4deg); }
+        }
+        @keyframes float-file-2 {
+          0%, 100% { transform: translate3d(0, 0, 0) rotate(3deg); }
+          50% { transform: translate3d(0, 4px, 0) rotate(3deg); }
+        }
+        @keyframes pulse-card-scale {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+        }
+        @keyframes erd-node-1 {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50% { transform: translate3d(-2px, 0, 0); }
+        }
+        @keyframes erd-node-2 {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50% { transform: translate3d(2px, 0, 0); }
+        }
+        @keyframes erd-packet {
+          0% { transform: translate3d(-20px, 0, 0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translate3d(20px, 0, 0); opacity: 0; }
+        }
+      `}</style>
+
       {/* 1. Standardized Global Navbar (Single Source of Truth) */}
       <Navbar />
 
@@ -247,12 +275,11 @@ export default function LandingHero() {
                 <div className="h-44 rounded-xl bg-muted/60 border border-white/5 p-4 flex flex-col justify-center items-center relative overflow-hidden mb-6 group-hover:border-primary/30 transition-colors">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none" />
 
-                  {/* Stacking Files Animation */}
+                  {/* Stacking Files Animation (Hardware Accelerated CSS) */}
                   <div className="relative w-36 h-28 flex items-center justify-center">
-                    <motion.div
-                      animate={{ y: [0, -6, 0] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute w-28 h-20 rounded-lg bg-surface border border-white/10 shadow-lg top-0 rotate-[-4deg] p-2 flex flex-col justify-between"
+                    <div
+                      style={{ animation: "float-file-1 4s ease-in-out infinite" }}
+                      className="absolute w-28 h-20 rounded-lg bg-surface border border-white/10 shadow-lg top-0 rotate-[-4deg] p-2 flex flex-col justify-between will-change-transform transform-gpu"
                     >
                       <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-rose-500/80" />
@@ -262,12 +289,11 @@ export default function LandingHero() {
                         <div className="h-1 bg-white/10 rounded w-3/4" />
                         <div className="h-1 bg-white/10 rounded w-1/2" />
                       </div>
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                      animate={{ y: [0, 4, 0] }}
-                      transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute w-28 h-20 rounded-lg bg-surface border border-white/15 shadow-xl top-3 rotate-[3deg] p-2 flex flex-col justify-between"
+                    <div
+                      style={{ animation: "float-file-2 4.5s ease-in-out infinite" }}
+                      className="absolute w-28 h-20 rounded-lg bg-surface border border-white/15 shadow-xl top-3 rotate-[3deg] p-2 flex flex-col justify-between will-change-transform transform-gpu"
                     >
                       <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-blue-500/80" />
@@ -277,12 +303,11 @@ export default function LandingHero() {
                         <div className="h-1 bg-white/10 rounded w-4/5" />
                         <div className="h-1 bg-white/10 rounded w-2/3" />
                       </div>
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                      animate={{ scale: [1, 1.02, 1] }}
-                      transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute w-32 h-22 rounded-lg bg-surface border border-primary/40 shadow-2xl top-5 p-2.5 flex flex-col justify-between z-10"
+                    <div
+                      style={{ animation: "pulse-card-scale 3.5s ease-in-out infinite" }}
+                      className="absolute w-32 h-22 rounded-lg bg-surface border border-primary/40 shadow-2xl top-5 p-2.5 flex flex-col justify-between z-10 will-change-transform transform-gpu"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-mono font-bold text-primary">
@@ -294,7 +319,7 @@ export default function LandingHero() {
                         <div className="h-1.5 bg-primary/30 rounded w-full" />
                         <div className="h-1 bg-white/20 rounded w-5/6" />
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
 
@@ -323,39 +348,36 @@ export default function LandingHero() {
                 <div className="h-44 rounded-xl bg-muted/60 border border-white/5 p-4 flex flex-col justify-center items-center relative overflow-hidden mb-6 group-hover:border-primary/30 transition-colors">
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
 
-                  {/* Animated Mini ERD Network */}
+                  {/* Animated Mini ERD Network (Pure CSS GPU Animation) */}
                   <div className="relative w-44 h-28 flex items-center justify-between px-2">
                     {/* Entity USERS */}
-                    <motion.div
-                      animate={{ x: [0, -2, 0] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="w-16 rounded border border-primary/50 bg-surface/90 p-1.5 text-center shadow"
+                    <div
+                      style={{ animation: "erd-node-1 3s ease-in-out infinite" }}
+                      className="w-16 rounded border border-primary/50 bg-surface/90 p-1.5 text-center shadow will-change-transform transform-gpu"
                     >
                       <div className="text-[9px] font-mono font-bold text-primary">USERS</div>
                       <div className="h-0.5 bg-white/20 my-1" />
                       <div className="text-[7px] font-mono text-muted-fg">id, email</div>
-                    </motion.div>
+                    </div>
 
                     {/* Pulsing Relationship Line */}
                     <div className="flex-1 flex items-center justify-center relative">
                       <div className="h-[2px] w-full bg-border" />
-                      <motion.div
-                        animate={{ x: [-20, 20], opacity: [0, 1, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        className="absolute w-2 h-2 rounded-full bg-primary"
+                      <div
+                        style={{ animation: "erd-packet 2s linear infinite" }}
+                        className="absolute w-2 h-2 rounded-full bg-primary will-change-transform transform-gpu"
                       />
                     </div>
 
                     {/* Entity PROJECTS */}
-                    <motion.div
-                      animate={{ x: [0, 2, 0] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="w-18 rounded border border-primary/50 bg-surface/90 p-1.5 text-center shadow"
+                    <div
+                      style={{ animation: "erd-node-2 3s ease-in-out infinite" }}
+                      className="w-18 rounded border border-primary/50 bg-surface/90 p-1.5 text-center shadow will-change-transform transform-gpu"
                     >
                       <div className="text-[9px] font-mono font-bold text-primary">PROJECTS</div>
                       <div className="h-0.5 bg-white/20 my-1" />
                       <div className="text-[7px] font-mono text-muted-fg">id, userId</div>
-                    </motion.div>
+                    </div>
                   </div>
 
                   <div className="text-[10px] font-mono text-primary flex items-center gap-1 mt-1">

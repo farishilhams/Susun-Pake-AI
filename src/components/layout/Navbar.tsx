@@ -134,7 +134,7 @@ export default function Navbar() {
 
     const handleScroll = () => {
       if (window.scrollY < 250) {
-        setActiveSection("");
+        setActiveSection((prev) => (prev !== "" ? "" : prev));
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
