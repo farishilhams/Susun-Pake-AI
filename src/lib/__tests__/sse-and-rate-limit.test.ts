@@ -93,14 +93,14 @@ console.log("  ✅ PASS: Nilai metrik database kosong dirender 0 transparan tanp
 console.log("\n4. Pengujian Audit Keamanan AI Provider (Zero Billing Protection):");
 const allFreeModels = Array.from(new Set([...FREE_MODELS_FLASH, ...FREE_MODELS_DEEP]));
 for (const model of allFreeModels) {
-  const isFreeTag = model.endsWith(":free") || model === "openrouter/free";
+  const isFreeTag = model.endsWith(":free");
   assert.strictEqual(
     isFreeTag,
     true,
     `Model OpenRouter [${model}] WAJIB berlabel gratis (:free atau openrouter/free)`
   );
 }
-console.log(`  ✅ PASS: Seluruh ${allFreeModels.length} model OpenRouter berstatus GRATIS (zero-billing verified)`);
+console.log(`  ✅ PASS: Seluruh ${allFreeModels.length} model OpenRouter berstatus GRATIS (:free suffix verified)`);
 
 console.log("\n========================================");
 console.log("Semua Pengujian Tahap 6 Berhasil Lolos!");

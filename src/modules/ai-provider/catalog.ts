@@ -13,7 +13,7 @@ export const DEFAULT_MODEL_ID = "gemini-2.5-flash";
 export const CATEGORY_LABELS: Record<AICategory, string> = {
   fast: "Model Cepat & Ringan",
   general: "Model Serbaguna",
-  reasoning: "Model Penalaran Arsitektur Mendalam",
+  reasoning: "Model Penalaran Mendalam",
 };
 
 /**
@@ -23,21 +23,28 @@ export const CATEGORY_LABELS: Record<AICategory, string> = {
 export const MODEL_ALIASES: Record<string, string> = {
   // Legacy / Decommissioned Gemini models -> Model Gemini aktif
   "gemini-1.5-flash": "gemini-2.5-flash",
-  "gemini-1.5-pro": "gemini-3.5-flash",
-  "gemini-2.5-flash-lite": "gemini-3.5-flash-lite",
-  "gemini-2.5-pro": "gemini-3.5-flash",
+  "gemini-1.5-pro": "gemini-2.5-flash",
+  "gemini-2.5-flash-lite": "gemini-2.5-flash-lite-preview",
+  "gemini-2.5-pro": "gemini-2.5-flash",
+  "gemini-3.5-flash": "gemini-2.5-flash",
+  "gemini-3.5-flash-lite": "gemini-2.5-flash-lite-preview",
+  "gemini-3.6-flash": "gemini-2.5-flash",
 
   // Legacy / Inaccessible Groq models -> Model Groq aktif di akun
-  "llama-3.1-8b-instant": "openai/gpt-oss-20b",
-  "llama-3.3-70b-versatile": "qwen/qwen3.8-27b",
-  "llama3-8b-8192": "openai/gpt-oss-20b",
-  "llama3-70b-8192": "qwen/qwen3.8-27b",
+  "llama-3.1-8b-instant": "llama-3.3-70b-versatile",
+  "llama3-8b-8192": "llama-3.3-70b-versatile",
+  "llama3-70b-8192": "llama-3.3-70b-versatile",
+  "qwen/qwen3.8-27b": "llama-3.3-70b-versatile",
+  "openai/gpt-oss-20b": "llama-3.3-70b-versatile",
+  "openai/gpt-oss-120b": "llama-3.3-70b-versatile",
 
   // Legacy / Expired OpenRouter Free models -> Model Free aktif
-  "deepseek/deepseek-r1:free": "openrouter/free",
-  "qwen/qwen-2.5-coder-32b-instruct:free": "qwen/qwen3.8-27b:free",
-  "meta-llama/llama-3.3-70b-instruct:free": "openrouter/free",
-  "deepseek/deepseek-r1-distill-llama-70b:free": "openrouter/free",
+  "deepseek/deepseek-r1-distill-llama-70b:free": "deepseek/deepseek-r1:free",
+  "qwen/qwen-2.5-coder-32b-instruct:free": "qwen/qwen-2.5-coder-32b-instruct:free",
+  "meta-llama/llama-3.3-70b-instruct:free": "meta-llama/llama-3.3-70b-instruct:free",
+  "qwen/qwen3.8-27b:free": "deepseek/deepseek-r1:free",
+  "google/gemma-4-26b-a4b-it:free": "deepseek/deepseek-r1:free",
+  "openrouter/free": "deepseek/deepseek-r1:free",
 };
 
 /**
@@ -49,92 +56,110 @@ export function resolveModelId(id?: string): string | undefined {
 }
 
 export const AI_MODELS: AIModelDefinition[] = [
-  // ── Google Gemini (AI Studio - Resmi & Aktif) ──
+  // ── Google Gemini (AI Studio - Resmi & Aktif, Gratis via AI Studio) ──
   {
     id: "gemini-2.5-flash",
     name: "Gemini 2.5 Flash",
     provider: "gemini",
     category: "fast",
     badge: "Rekomendasi",
-    description: "Jawaban tercepat & efisien untuk drafting arsitektur awal",
+    badgeVariant: "recommend",
+    description: "Model Gemini tercepat & paling efisien — ideal untuk drafting arsitektur",
     supportsStreaming: true,
     isDefault: true,
+    isFree: true,
   },
   {
-    id: "gemini-3.5-flash",
-    name: "Gemini 3.5 Flash",
-    provider: "gemini",
-    category: "reasoning",
-    badge: "Canggih",
-    description: "Generasi baru Google dengan analisis logika & sistem mendalam",
-    supportsStreaming: true,
-  },
-  {
-    id: "gemini-3.5-flash-lite",
-    name: "Gemini 3.5 Flash Lite",
+    id: "gemini-2.5-flash-lite-preview",
+    name: "Gemini 2.5 Flash Lite",
     provider: "gemini",
     category: "fast",
     badge: "Hemat",
-    description: "Inferensi kilat ringan untuk klarifikasi dan respon singkat",
+    badgeVariant: "lite",
+    description: "Inferensi kilat ultra-ringan untuk klarifikasi & respon singkat",
     supportsStreaming: true,
+    isFree: true,
+  },
+  {
+    id: "gemini-2.5-pro-preview",
+    name: "Gemini 2.5 Pro",
+    provider: "gemini",
+    category: "reasoning",
+    badge: "Pro",
+    badgeVariant: "flagship",
+    description: "Kapabilitas penalaran tertinggi Google — analisis sistem kompleks",
+    supportsStreaming: true,
+    isFree: true,
   },
 
-  // ── Groq (Ultra-Low Latency via LPU - Model Aktif di Akun) ──
+  // ── Groq (Ultra-Low Latency via LPU - Model Aktif Free Tier) ──
   {
-    id: "qwen/qwen3.8-27b",
-    name: "Qwen 3.8 27B (Groq)",
+    id: "llama-3.3-70b-versatile",
+    name: "Llama 3.3 70B (Groq)",
     provider: "groq",
     category: "general",
     badge: "Kilat",
-    description: "Eksekusi super cepat untuk arsitektur kode dan multilingual",
+    badgeVariant: "fast",
+    description: "Meta Llama 70B terbaru — serbaguna & sangat cepat via hardware LPU Groq",
     supportsStreaming: true,
+    isFree: true,
   },
   {
-    id: "openai/gpt-oss-120b",
-    name: "GPT OSS 120B (Groq)",
-    provider: "groq",
-    category: "reasoning",
-    badge: "Flagship",
-    description: "Parameter masif 120B dengan akselerasi hardware LPU Groq",
-    supportsStreaming: true,
-  },
-  {
-    id: "openai/gpt-oss-20b",
-    name: "GPT OSS 20B (Groq)",
+    id: "llama-3.1-8b-instant",
+    name: "Llama 3.1 8B Instant (Groq)",
     provider: "groq",
     category: "fast",
-    badge: "Ringan",
-    description: "Latensi mendekati nol untuk tanya jawab cepat dan interaktif",
+    badge: "Instan",
+    badgeVariant: "fast",
+    description: "Respon mendekati instan — tanya jawab cepat & interaktif tinggi",
     supportsStreaming: true,
+    isFree: true,
+  },
+  {
+    id: "deepseek-r1-distill-llama-70b",
+    name: "DeepSeek R1 Distill 70B (Groq)",
+    provider: "groq",
+    category: "reasoning",
+    badge: "Reasoning",
+    badgeVariant: "reasoning",
+    description: "Extended chain-of-thought reasoning untuk analisis arsitektur mendalam",
+    supportsStreaming: true,
+    isFree: true,
   },
 
-  // ── OpenRouter (100% Free / Auto-Route Ecosystem) ──
+  // ── OpenRouter (100% Free Tier — Model Gratis Aktif & Terverifikasi) ──
   {
-    id: "openrouter/free",
-    name: "OpenRouter Auto Free",
-    provider: "openrouter",
-    category: "general",
-    badge: "Auto Free",
-    description: "Perutean cerdas otomatis ke model gratis terbaik yang sedang aktif",
-    supportsStreaming: true,
-  },
-  {
-    id: "qwen/qwen3.8-27b:free",
-    name: "Qwen 3.8 27B Free",
+    id: "deepseek/deepseek-r1:free",
+    name: "DeepSeek R1 Free",
     provider: "openrouter",
     category: "reasoning",
-    badge: "Coding",
-    description: "Optimal untuk skema arsitektur, diagram dan sintaks kode",
+    badge: "R1 Free",
+    badgeVariant: "reasoning",
+    description: "Model penalaran rantai-pikir terbuka DeepSeek — gratis tanpa batas",
     supportsStreaming: true,
+    isFree: true,
   },
   {
-    id: "google/gemma-4-26b-a4b-it:free",
-    name: "Gemma 4 26B Free",
+    id: "qwen/qwen-2.5-coder-32b-instruct:free",
+    name: "Qwen 2.5 Coder 32B Free",
+    provider: "openrouter",
+    category: "general",
+    badge: "Coding",
+    badgeVariant: "coding",
+    description: "Spesialis kode & arsitektur sistem — optimal untuk skema & diagram",
+    supportsStreaming: true,
+    isFree: true,
+  },
+  {
+    id: "meta-llama/llama-3.3-70b-instruct:free",
+    name: "Llama 3.3 70B Free",
     provider: "openrouter",
     category: "fast",
-    badge: "Ringkas",
-    description: "Model open Google berkecepatan tinggi dengan kuota gratis",
+    badge: "Gratis",
+    badgeVariant: "free",
+    description: "Llama 3.3 70B via OpenRouter — performa tinggi tanpa kuota bayar",
     supportsStreaming: true,
+    isFree: true,
   },
 ];
 

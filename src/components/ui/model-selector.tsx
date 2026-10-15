@@ -25,7 +25,7 @@ import {
   CATEGORY_LABELS,
 } from "@/modules/ai-provider/catalog";
 import { AICategory, AIModelDefinition } from "@/modules/ai-provider/types";
-import { Check, ChevronDown, Sparkles, Brain, Cpu } from "lucide-react";
+import { Check, ChevronDown, Brain, Cpu, Zap, Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface ModelSelectorProps {
@@ -59,26 +59,44 @@ export function ModelSelector({
 
   const categories: AICategory[] = ["fast", "general", "reasoning"];
 
-  // Helper untuk rendering badge warna yang harmonis
-  const getBadgeStyle = (badgeText: string) => {
-    switch (badgeText.toLowerCase()) {
-      case "baru":
-        return "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-      case "rekomendasi":
-        return "bg-blue-500/20 text-blue-400 border border-blue-500/30";
-      case "kilat":
-      case "cepat":
-        return "bg-amber-500/20 text-amber-400 border border-amber-500/30";
-      case "canggih":
+  // Helper badge style menggunakan badgeVariant dari katalog model
+  const getBadgeStyle = (model: AIModelDefinition) => {
+    const variant = model.badgeVariant ?? "free";
+    switch (variant) {
+      case "recommend":
+        return "bg-blue-500/20 text-blue-300 border border-blue-500/30";
+      case "new":
+        return "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+      case "fast":
+        return "bg-amber-500/20 text-amber-300 border border-amber-500/30";
       case "reasoning":
-        return "bg-purple-500/20 text-purple-400 border border-purple-500/30";
+        return "bg-purple-500/20 text-purple-300 border border-purple-500/30";
       case "coding":
-        return "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+        return "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
+      case "flagship":
+        return "bg-rose-500/20 text-rose-300 border border-rose-500/30";
+      case "lite":
+        return "bg-slate-600/30 text-slate-300 border border-slate-500/30";
       case "free":
       default:
-        return "bg-slate-700/50 text-slate-300 border border-slate-600/40";
+        return "bg-slate-700/40 text-slate-300 border border-slate-600/30";
     }
   };
+
+  // Ikon kategori per model untuk trigger button
+  const getActiveModelIcon = () => {
+    if (activeModel.category === "reasoning" || extendedReasoning) {
+      return <Brain className="w-3.5 h-3.5 text-purple-400 shrink-0 animate-pulse" />;
+    }
+    if (activeModel.category === "fast") {
+      return <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />;
+    }
+    if (activeModel.badgeVariant === "coding") {
+      return <Code2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />;
+    }
+    return <Cpu className="w-3.5 h-3.5 text-blue-400 shrink-0" />;
+  };
+
 
   return (
     <div className={cn("inline-block", className)}>
@@ -97,13 +115,7 @@ export function ModelSelector({
               extendedReasoning ? " (Penalaran Diperluas)" : ""
             }`}
           >
-            {activeModel.category === "reasoning" || extendedReasoning ? (
-              <Brain className="w-3.5 h-3.5 text-purple-400 shrink-0 animate-pulse" />
-            ) : activeModel.category === "fast" ? (
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            ) : (
-              <Cpu className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-            )}
+            {getActiveModelIcon()}
 
             <span className="font-semibold tracking-tight text-slate-100 flex items-center gap-1.5">
               <span>{activeModel.name}</span>
@@ -194,11 +206,14 @@ export function ModelSelector({
                               <span
                                 className={cn(
                                   "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0",
-                                  getBadgeStyle(model.badge)
+                                  getBadgeStyle(model)
                                 )}
                               >
                                 {model.badge}
                               </span>
+                            )}
+                            {model.isFree && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/70 shrink-0" title="Gratis" />
                             )}
                           </div>
                           <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1 leading-snug">

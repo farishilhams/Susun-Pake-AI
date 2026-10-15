@@ -9,13 +9,26 @@
 export type AIProviderName = "gemini" | "groq" | "openrouter";
 export type AICategory = "fast" | "general" | "reasoning";
 
+/** Variant badge visual untuk model-selector — memengaruhi warna chip */
+export type BadgeVariant =
+  | "recommend"   // biru — model utama / rekomendasi
+  | "new"         // hijau — model baru rilis
+  | "fast"        // amber — latensi sangat rendah
+  | "reasoning"   // ungu — extended reasoning / penalaran dalam
+  | "coding"      // cyan — optimal coding & arsitektur
+  | "free"        // slate — gratis / auto-route
+  | "flagship"    // rose — model terbesar / paling kapabel
+  | "lite";       // gray — versi ringan / hemat token
+
 export interface AIModelDefinition {
-  id: string; // Identifier API (contoh: "gemini-2.5-flash", "llama-3.3-70b-versatile")
-  name: string; // Label utama (contoh: "Gemini 2.5 Flash", "Llama 3.3 70B", "DeepSeek R1")
+  id: string;           // Identifier API (contoh: "gemini-2.5-flash", "llama-3.3-70b-versatile")
+  name: string;         // Label utama yang ditampilkan di UI
   provider: AIProviderName;
   category: AICategory;
-  badge?: string; // Penanda visual (contoh: "Baru", "Rekomendasi", "Cepat", "Kilat", "Reasoning", "Coding", "Free")
-  description: string; // Deskripsi singkat 1 baris (contoh: "Jawaban tercepat", "Bantuan serbaguna", "Penalaran arsitektur mendalam")
+  badge?: string;       // Teks badge (contoh: "Baru", "Rekomendasi", "Kilat", "Reasoning", "Coding", "Free")
+  badgeVariant?: BadgeVariant; // Variant warna chip badge
+  description: string;  // Deskripsi singkat 1 baris kemampuan model
   supportsStreaming: boolean;
   isDefault?: boolean;
+  isFree?: boolean;     // Apakah model ini 100% gratis (free tier tanpa billing)
 }

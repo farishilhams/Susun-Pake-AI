@@ -10,28 +10,29 @@ import { resolveModelId } from "./catalog";
 
 const BASE_URL = "https://openrouter.ai/api/v1";
 
-// Model gratis aktif & terverifikasi di OpenRouter
+// Model gratis aktif & terverifikasi di OpenRouter (Oktober 2025)
 export const FREE_MODELS_FLASH = [
-  "openrouter/free",
-  "qwen/qwen3.8-27b:free",
-  "google/gemma-4-26b-a4b-it:free",
-  "nvidia/nemotron-3.5-lightning:free",
+  "meta-llama/llama-3.3-70b-instruct:free",  // Utama flash — serbaguna & stabil
+  "qwen/qwen-2.5-coder-32b-instruct:free",   // Coding & arsitektur sistem
+  "deepseek/deepseek-r1:free",               // Reasoning mendalam gratis
 ] as const;
 
 export const FREE_MODELS_DEEP = [
-  "openrouter/free",
-  "qwen/qwen3.8-27b:free",
-  "google/gemma-4-26b-a4b-it:free",
+  "deepseek/deepseek-r1:free",               // Utama deep — chain-of-thought
+  "qwen/qwen-2.5-coder-32b-instruct:free",   // Fallback coding
+  "meta-llama/llama-3.3-70b-instruct:free",  // Fallback general
 ] as const;
 
 export const FREE_MODELS = FREE_MODELS_FLASH;
 
 // Memory cache untuk model yang 404 / rate limit berkepanjangan
 const openrouterDisabledModels = new Set<string>([
-  "deepseek/deepseek-r1:free",
-  "qwen/qwen-2.5-coder-32b-instruct:free",
-  "meta-llama/llama-3.3-70b-instruct:free",
+  // Model gratis OpenRouter yang sudah expired/decommissioned
   "deepseek/deepseek-r1-distill-llama-70b:free",
+  "qwen/qwen3.8-27b:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "nvidia/nemotron-3.5-lightning:free",
+  "openrouter/free", // routing alias — sudah tidak didukung di free tier
 ]);
 
 /**
@@ -78,7 +79,7 @@ export async function callOpenRouterFree(
   );
 
   if (activeCandidates.length === 0) {
-    activeCandidates.push("openrouter/free");
+    activeCandidates.push("meta-llama/llama-3.3-70b-instruct:free");
   }
 
   for (const model of activeCandidates) {

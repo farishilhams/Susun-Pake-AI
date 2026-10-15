@@ -19,22 +19,19 @@ export type ProviderOptions = {
   extendedReasoning?: boolean;
 };
 
-// Daftar model Gemini aktif di AI Studio
+// Daftar model Gemini aktif di AI Studio (Free Tier, Terverifikasi)
 export const GEMINI_MODELS_FLASH = [
-  "gemini-2.5-flash",
-  "gemini-1.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-3.6-flash",
-  "gemini-1.5-pro",
-  "gemini-2.5-pro",
+  "gemini-2.5-flash",             // Utama — free tier, stabil, latensi terbaik
+  "gemini-2.5-flash-lite-preview", // Fallback ringan — inferensi kilat
+  "gemini-1.5-flash",             // Fallback lama — masih aktif di AI Studio
+  "gemini-2.5-pro-preview",       // Fallback pro — kapabilitas tertinggi
 ] as const;
 
 export const GEMINI_MODELS_DEEP = [
-  "gemini-1.5-pro",
-  "gemini-2.5-pro",
-  "gemini-2.5-flash",
-  "gemini-1.5-flash",
-  "gemini-3.6-flash",
+  "gemini-2.5-pro-preview",       // Utama deep — reasoning tertinggi
+  "gemini-2.5-flash",             // Fallback deep — cepat dengan kualitas baik
+  "gemini-2.5-flash-lite-preview", // Fallback ringan
+  "gemini-1.5-flash",             // Fallback lama
 ] as const;
 
 export const GEMINI_MODELS = GEMINI_MODELS_FLASH;

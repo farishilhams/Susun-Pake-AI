@@ -9,27 +9,32 @@ import Groq from "groq-sdk";
 import { ProviderOptions } from "./gemini";
 import { resolveModelId } from "./catalog";
 
-// Model aktif di Groq yang stabil dan memiliki performa tinggi (terverifikasi di akun)
+// Model aktif di Groq Free Tier — terverifikasi & stabil
 export const GROQ_MODELS_FLASH = [
-  "openai/gpt-oss-20b",
-  "qwen/qwen3.8-27b",
-  "openai/gpt-oss-120b",
+  "llama-3.3-70b-versatile",      // Utama flash — paling kapabel di free tier Groq
+  "llama-3.1-8b-instant",         // Fallback ringan — latensi mendekati nol
+  "deepseek-r1-distill-llama-70b", // Fallback reasoning — chain-of-thought
 ] as const;
 
 export const GROQ_MODELS_DEEP = [
-  "openai/gpt-oss-120b",
-  "qwen/qwen3.8-27b",
-  "openai/gpt-oss-20b",
+  "deepseek-r1-distill-llama-70b", // Utama deep — reasoning terbaik di Groq
+  "llama-3.3-70b-versatile",      // Fallback deep — general reasoning
+  "llama-3.1-8b-instant",         // Fallback ringan
 ] as const;
 
 export const GROQ_MODELS = GROQ_MODELS_FLASH;
 
 // Memory cache untuk model yang tidak ada / 404 agar tidak dicoba berulang kali
 const groqDisabledModels = new Set<string>([
-  "llama-3.1-8b-instant",
-  "llama-3.3-70b-versatile",
+  // Model lama Groq yang sudah tidak tersedia
   "llama3-8b-8192",
   "llama3-70b-8192",
+  "mixtral-8x7b-32768",
+  "gemma2-9b-it",
+  // Model OpenRouter yang salah dimasukkan ke Groq
+  "openai/gpt-oss-20b",
+  "openai/gpt-oss-120b",
+  "qwen/qwen3.8-27b",
 ]);
 
 let cachedAvailableGroqModels: Set<string> | null = null;
@@ -105,7 +110,7 @@ export async function callGroq(
   });
 
   if (activeCandidates.length === 0) {
-    activeCandidates.push("openai/gpt-oss-20b", "qwen/qwen3.8-27b");
+    activeCandidates.push("llama-3.3-70b-versatile", "llama-3.1-8b-instant");
   }
 
   const temperature = opts?.extendedReasoning ? 0.3 : 0.7;
