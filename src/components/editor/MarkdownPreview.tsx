@@ -16,40 +16,52 @@ import MermaidDiagram from "./MermaidDiagram";
 const components: Components = {
   // Heading: JetBrains Mono, green accent untuk H1
   h1: ({ children }) => (
-    <h1 className="text-2xl font-bold mb-4 mt-6 pb-2 border-b border-border" style={{ fontFamily: "'JetBrains Mono', monospace", color: "var(--primary)" }}>
+    <h1
+      className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 mt-5 sm:mt-6 pb-2 border-b border-border tracking-tight break-words"
+      style={{ fontFamily: "'JetBrains Mono', monospace", color: "var(--primary)" }}
+    >
       {children}
     </h1>
   ),
   h2: ({ children }) => (
-    <h2 className="text-lg font-bold mb-3 mt-6 pb-1 border-b border-border" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+    <h2
+      className="text-base sm:text-lg font-bold mb-2.5 sm:mb-3 mt-5 sm:mt-6 pb-1 border-b border-border tracking-tight break-words"
+      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+    >
       {children}
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="text-base font-semibold mb-2 mt-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+    <h3
+      className="text-sm sm:text-base font-semibold mb-2 mt-4 break-words"
+      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+    >
       {children}
     </h3>
   ),
   h4: ({ children }) => (
-    <h4 className="text-sm font-semibold mb-2 mt-3 text-muted-fg" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+    <h4
+      className="text-xs sm:text-sm font-semibold mb-1.5 mt-3 text-muted-fg break-words"
+      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+    >
       {children}
     </h4>
   ),
 
   // Paragraf
   p: ({ children }) => (
-    <p className="mb-3 leading-relaxed text-sm text-foreground">{children}</p>
+    <p className="mb-3 leading-relaxed text-xs sm:text-sm text-foreground break-words">{children}</p>
   ),
 
   // List
   ul: ({ children }) => (
-    <ul className="mb-3 space-y-1 list-disc pl-5 text-sm">{children}</ul>
+    <ul className="mb-3 space-y-1 list-disc pl-4 sm:pl-5 text-xs sm:text-sm">{children}</ul>
   ),
   ol: ({ children }) => (
-    <ol className="mb-3 space-y-1 list-decimal pl-5 text-sm">{children}</ol>
+    <ol className="mb-3 space-y-1 list-decimal pl-4 sm:pl-5 text-xs sm:text-sm">{children}</ol>
   ),
   li: ({ children }) => (
-    <li className="text-sm leading-relaxed text-foreground">{children}</li>
+    <li className="text-xs sm:text-sm leading-relaxed text-foreground break-words">{children}</li>
   ),
 
   // Code inline & blocks
@@ -68,7 +80,7 @@ const components: Components = {
     if (isBlock) {
       return (
         <code
-          className="block bg-muted rounded-md p-3 text-xs overflow-x-auto whitespace-pre"
+          className="block bg-muted/80 rounded-lg p-3 sm:p-4 text-[11px] sm:text-xs overflow-x-auto whitespace-pre leading-relaxed"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
           {children}
@@ -77,7 +89,7 @@ const components: Components = {
     }
     return (
       <code
-        className="bg-muted px-1.5 py-0.5 rounded text-xs text-primary"
+        className="bg-muted px-1.5 py-0.5 rounded text-[11px] sm:text-xs text-primary font-mono break-all sm:break-normal"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
       >
         {children}
@@ -100,7 +112,7 @@ const components: Components = {
     }
 
     return (
-      <pre className="mb-3 bg-muted rounded-lg overflow-hidden border border-border">
+      <pre className="mb-3.5 bg-muted/80 rounded-xl overflow-hidden border border-border">
         {children}
       </pre>
     );
@@ -108,38 +120,38 @@ const components: Components = {
 
   // Blockquote
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-primary/50 pl-4 my-3 italic text-muted-fg text-sm">
+    <blockquote className="border-l-3 sm:border-l-4 border-primary/50 pl-3 sm:pl-4 my-3 italic text-muted-fg text-xs sm:text-sm">
       {children}
     </blockquote>
   ),
 
   // Table (GFM)
   table: ({ children }) => (
-    <div className="overflow-x-auto mb-4">
-      <table className="min-w-full text-sm border-collapse border border-border rounded-lg overflow-hidden">
+    <div className="overflow-x-auto my-4 rounded-xl border border-border bg-surface/40 shadow-sm">
+      <table className="min-w-full text-xs sm:text-sm border-collapse">
         {children}
       </table>
     </div>
   ),
   thead: ({ children }) => (
-    <thead className="bg-muted">{children}</thead>
+    <thead className="bg-muted/80">{children}</thead>
   ),
   th: ({ children }) => (
     <th
-      className="px-3 py-2 text-left text-xs font-semibold text-foreground border-b border-border"
+      className="px-3 py-2 text-left text-[11px] sm:text-xs font-semibold text-foreground border-b border-border whitespace-nowrap"
       style={{ fontFamily: "'JetBrains Mono', monospace" }}
     >
       {children}
     </th>
   ),
   td: ({ children }) => (
-    <td className="px-3 py-2 text-sm text-foreground border-b border-border/50">
+    <td className="px-3 py-2 text-xs sm:text-sm text-foreground border-b border-border/40">
       {children}
     </td>
   ),
 
   // HR
-  hr: () => <hr className="my-6 border-border" />,
+  hr: () => <hr className="my-5 sm:my-6 border-border" />,
 
   // Strong / Em
   strong: ({ children }) => (
@@ -158,7 +170,7 @@ const components: Components = {
           checked={checked}
           readOnly
           disabled={disabled}
-          className="mr-2 accent-primary"
+          className="mr-2 accent-primary rounded cursor-default"
         />
       );
     }
@@ -173,10 +185,10 @@ interface MarkdownPreviewProps {
 export default function MarkdownPreview({ content }: MarkdownPreviewProps) {
   if (!content.trim()) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-fg text-sm py-16">
+      <div className="flex items-center justify-center h-full text-muted-fg text-xs sm:text-sm py-16 px-4">
         <div className="text-center">
           <p className="text-3xl mb-2">👁️</p>
-          <p>Preview akan muncul di sini</p>
+          <p>Preview dokumentasi akan muncul di sini</p>
         </div>
       </div>
     );
@@ -184,7 +196,7 @@ export default function MarkdownPreview({ content }: MarkdownPreviewProps) {
 
   return (
     <div
-      className="p-5 max-w-none text-foreground"
+      className="p-3.5 sm:p-6 max-w-none text-foreground break-words"
       style={{ fontFamily: "'IBM Plex Sans', system-ui, sans-serif" }}
     >
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>

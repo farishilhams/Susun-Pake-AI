@@ -168,41 +168,76 @@ export default function VersionHistoryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-5xl h-[85vh] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        className="w-full max-w-5xl h-[92vh] sm:h-[85vh] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-850">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
-              <ClockCounterClockwise size={18} weight="bold" />
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 bg-slate-850">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
+              <ClockCounterClockwise size={16} weight="bold" />
             </div>
-            <div>
-              <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 font-mono">
+            <div className="min-w-0">
+              <h2 className="text-xs sm:text-sm font-semibold text-slate-100 flex items-center gap-2 font-mono truncate">
                 Riwayat Versi — {fileType}.md
               </h2>
-              <p className="text-xs text-slate-400">
-                Versi aktif saat ini: v{currentVersion}
+              <p className="text-[11px] sm:text-xs text-slate-400">
+                Versi aktif: <span className="font-mono text-emerald-400">v{currentVersion}</span>
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
           >
             <X size={18} />
           </button>
         </div>
 
+        {/* Mobile Horizontal Version Bar (< md) */}
+        <div className="md:hidden border-b border-slate-800 bg-slate-900/90 px-3 py-2 overflow-x-auto flex items-center gap-1.5 no-scrollbar scroll-smooth">
+          <span className="text-[10px] uppercase font-mono font-bold text-slate-400 shrink-0 mr-1">
+            Versi:
+          </span>
+          {loadingList ? (
+            <span className="text-xs text-slate-500 flex items-center gap-1">
+              <Spinner size={12} className="animate-spin text-emerald-400" /> Memuat...
+            </span>
+          ) : versions.length === 0 ? (
+            <span className="text-xs text-slate-500 italic">Belum ada riwayat</span>
+          ) : (
+            versions.map((ver) => {
+              const isSelected = selectedVersion === ver.version;
+              const isCurrent = ver.version === currentVersion;
+              return (
+                <button
+                  key={ver.version}
+                  type="button"
+                  onClick={() => setSelectedVersion(ver.version)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold"
+                      : "bg-slate-800 text-slate-400 border border-slate-700/60 hover:text-slate-200"
+                  }`}
+                >
+                  <GitCommit size={12} />
+                  <span>v{ver.version}</span>
+                  {isCurrent && <span className="text-[10px] text-emerald-400">•</span>}
+                </button>
+              );
+            })
+          )}
+        </div>
+
         {/* Modal Body: Split 2 Kolom (List Versi & Diff Viewer) */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Kolom Kiri: Daftar Versi */}
-          <div className="w-72 border-r border-slate-800 bg-slate-900/60 overflow-y-auto flex flex-col divide-y divide-slate-800/60">
+          {/* Kolom Kiri: Daftar Versi (Desktop >= md) */}
+          <div className="hidden md:flex md:w-72 border-r border-slate-800 bg-slate-900/60 overflow-y-auto flex-col divide-y divide-slate-800/60 shrink-0">
             <div className="p-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 bg-slate-900/80">
               Pilih Versi Riwayat
             </div>
@@ -269,25 +304,25 @@ export default function VersionHistoryModal({
           </div>
 
           {/* Kolom Kanan: Diff Viewer */}
-          <div className="flex-1 flex flex-col p-4 overflow-hidden bg-slate-950">
+          <div className="flex-1 flex flex-col p-3 sm:p-4 overflow-hidden bg-slate-950">
             {loadingContent ? (
               <div className="flex-1 flex items-center justify-center text-slate-400 gap-2">
                 <Spinner size={20} className="animate-spin text-emerald-400" />
-                <span className="text-sm">Memuat konten versi v{selectedVersion}...</span>
+                <span className="text-xs sm:text-sm">Memuat konten versi v{selectedVersion}...</span>
               </div>
             ) : selectedVersion === null ? (
-              <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">
-                Pilih versi di sebelah kiri untuk melihat perbedaan (diff).
+              <div className="flex-1 flex items-center justify-center text-slate-500 text-xs sm:text-sm text-center p-4">
+                Pilih versi di atas atau di sebelah kiri untuk melihat perbedaan (diff).
               </div>
             ) : (
               <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="text-xs text-slate-300">
-                    Membandingkan <strong className="text-slate-100 font-mono">v{selectedVersion}</strong> dengan versi aktif saat ini (<strong className="text-emerald-400 font-mono">v{currentVersion}</strong>)
+                <div className="mb-2.5 sm:mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0">
+                  <div className="text-[11px] sm:text-xs text-slate-300">
+                    Membandingkan <strong className="text-slate-100 font-mono">v{selectedVersion}</strong> dengan versi aktif (<strong className="text-emerald-400 font-mono">v{currentVersion}</strong>)
                   </div>
 
                   {rollbackSuccessMsg ? (
-                    <div className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
+                    <div className="flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
                       <Check size={14} weight="bold" />
                       <span>{rollbackSuccessMsg}</span>
                     </div>
@@ -297,7 +332,7 @@ export default function VersionHistoryModal({
                         type="button"
                         onClick={handleRollback}
                         disabled={rollbackLoading}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-sm"
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-sm w-full sm:w-auto"
                       >
                         {rollbackLoading ? (
                           <Spinner size={14} className="animate-spin" />

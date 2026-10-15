@@ -38,33 +38,33 @@ export default async function InterviewPage({ params }: PageProps) {
   return (
     <main className="min-h-screen flex flex-col">
       {/* Top bar */}
-      <header className="border-b border-border bg-surface px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <header className="border-b border-border bg-surface px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-muted-fg hover:text-foreground transition-colors text-sm"
+            className="inline-flex items-center gap-1.5 text-muted-fg hover:text-foreground transition-colors text-xs sm:text-sm shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Dashboard</span>
+            <span className="hidden xs:inline">Dashboard</span>
           </Link>
-          <span className="text-border">/</span>
-          <span className="text-foreground font-medium text-sm">
+          <span className="text-border text-xs">/</span>
+          <span className="text-foreground font-medium text-xs sm:text-sm font-mono truncate max-w-[130px] xs:max-w-[200px] sm:max-w-none">
             {project.name}
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-fg">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-muted-fg shrink-0 font-mono">
           <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-          Interview aktif
+          <span>Interview</span>
         </div>
       </header>
 
       {/* Chat interface */}
-      <div className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+      <div className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-8 text-center px-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1.5 sm:mb-2">
             Klarifikasi Project
           </h1>
-          <p className="text-muted-fg text-sm">
+          <p className="text-muted-fg text-xs sm:text-sm leading-relaxed max-w-xl mx-auto">
             AI akan mengajukan beberapa pertanyaan singkat (maks 5) untuk memahami
             project{" "}
             <strong className="text-foreground">{project.name}</strong> lebih baik

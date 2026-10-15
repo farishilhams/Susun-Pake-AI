@@ -146,8 +146,8 @@ export default function InterviewChat({
   return (
     <div className="flex flex-col flex-1">
       {/* Model Selector Bar with Cinematic Glass ModelSelector */}
-      <div className="flex items-center justify-between gap-3 mb-4 px-4 py-2.5 rounded-2xl bg-surface/70 border border-white/10 backdrop-blur-md relative z-30">
-        <div className="flex items-center gap-2 text-xs font-mono text-muted-fg">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 mb-4 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-surface/70 border border-white/10 backdrop-blur-md relative z-30">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-mono text-muted-fg shrink-0">
           <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
           <span className="hidden sm:inline">Pilih Model AI:</span>
         </div>
@@ -163,15 +163,15 @@ export default function InterviewChat({
 
       {/* Fallback Notice Banner */}
       {fallbackNotice && (
-        <div className="mb-4 px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between shadow-sm animate-in fade-in">
-          <div className="flex items-center gap-2">
+        <div className="mb-4 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between shadow-sm animate-in fade-in">
+          <div className="flex items-center gap-2 min-w-0">
             <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-            <span>{fallbackNotice}</span>
+            <span className="truncate">{fallbackNotice}</span>
           </div>
           <button
             type="button"
             onClick={clearFallbackNotice}
-            className="text-amber-400 hover:text-white text-base font-bold ml-2 cursor-pointer leading-none"
+            className="text-amber-400 hover:text-white text-base font-bold ml-2 cursor-pointer leading-none shrink-0"
             title="Tutup pemberitahuan"
           >
             &times;
@@ -180,7 +180,7 @@ export default function InterviewChat({
       )}
 
       {/* Messages */}
-      <div className="flex-1 space-y-4 mb-6 min-h-[300px] max-h-[calc(100vh-380px)] overflow-y-auto">
+      <div className="flex-1 space-y-3 sm:space-y-4 mb-4 sm:mb-6 min-h-[260px] max-h-[calc(100dvh-340px)] overflow-y-auto px-0.5">
         <AnimatePresence initial={false}>
           {messages
             .filter((m) => m.role === "user" || Boolean(m.content) || m.isStreaming)

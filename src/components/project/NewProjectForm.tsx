@@ -116,12 +116,12 @@ export default function NewProjectForm() {
       </div>
 
       {/* Step indicators */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border bg-surface/30">
         {STEPS.map(({ step, label }) => (
-          <div key={step} className="flex items-center gap-2">
+          <div key={step} className="flex items-center gap-1.5 sm:gap-2">
             <div
               className={`
-                w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors
+                w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors shrink-0
                 ${step < currentStep
                   ? "bg-primary text-white"
                   : step === currentStep
@@ -133,7 +133,7 @@ export default function NewProjectForm() {
               {step < currentStep ? "✓" : step}
             </div>
             <span
-              className={`text-xs hidden sm:block ${
+              className={`text-xs hidden md:block ${
                 step === currentStep ? "text-foreground font-medium" : "text-muted-fg"
               }`}
             >
@@ -144,7 +144,7 @@ export default function NewProjectForm() {
       </div>
 
       {/* Form content */}
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <AnimatePresence mode="wait">
           {currentStep === 1 && (
             <motion.div
@@ -168,7 +168,7 @@ export default function NewProjectForm() {
                 onKeyDown={(e) => e.key === "Enter" && nextStep()}
                 placeholder="misal: TaskFlow, EduPlatform, InventoryPro..."
                 autoFocus
-                className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-fg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-lg"
+                className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-fg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-base sm:text-lg"
               />
               <p className="mt-2 text-xs text-muted-fg">
                 Gunakan nama yang deskriptif dan mudah diingat
@@ -187,7 +187,7 @@ export default function NewProjectForm() {
               <p className="text-sm font-medium text-foreground mb-4">
                 Tipe aplikasi apa yang akan kamu bangun?
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 {PROJECT_TYPES.map(({ value, label, icon }) => (
                   <button
                     key={value}
@@ -198,7 +198,7 @@ export default function NewProjectForm() {
                       setCurrentStep(3);
                     }}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all
+                      flex items-center gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-lg border text-left transition-all cursor-pointer
                       ${
                         formData.projectType === value
                           ? "border-primary bg-primary/10 text-foreground"
@@ -207,7 +207,7 @@ export default function NewProjectForm() {
                     `}
                   >
                     <span className="text-xl">{icon}</span>
-                    <span className="text-sm font-medium">{label}</span>
+                    <span className="text-xs sm:text-sm font-medium">{label}</span>
                   </button>
                 ))}
               </div>

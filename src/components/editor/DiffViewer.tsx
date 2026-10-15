@@ -138,12 +138,12 @@ export default function DiffViewer({
   return (
     <div className="w-full rounded-xl border border-slate-700 bg-slate-950 overflow-hidden flex flex-col text-xs font-mono">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-slate-300">
-        <div className="flex items-center gap-3">
-          <span className="text-red-400">--- {oldLabel}</span>
-          <span className="text-emerald-400">+++ {newLabel}</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-900 border-b border-slate-800 text-slate-300">
+        <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs truncate">
+          <span className="text-red-400 truncate">--- {oldLabel}</span>
+          <span className="text-emerald-400 truncate">+++ {newLabel}</span>
         </div>
-        <div className="flex items-center gap-2 text-[11px]">
+        <div className="flex items-center gap-2 text-[10px] sm:text-[11px] shrink-0">
           <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             +{stats.added} baris
           </span>
@@ -156,7 +156,7 @@ export default function DiffViewer({
       {/* Diff content view */}
       <div className="overflow-x-auto max-h-[500px] overflow-y-auto divide-y divide-slate-900/40">
         {diffLines.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 italic">
+          <div className="p-8 text-center text-slate-500 italic text-xs">
             Tidak ada perbedaan teks di antara kedua versi ini.
           </div>
         ) : (
@@ -167,7 +167,7 @@ export default function DiffViewer({
             return (
               <div
                 key={idx}
-                className={`flex items-start leading-5 select-text transition-colors ${
+                className={`flex items-start leading-5 select-text transition-colors text-[11px] sm:text-xs ${
                   isAdded
                     ? "bg-emerald-950/30 text-emerald-200"
                     : isRemoved
@@ -176,16 +176,16 @@ export default function DiffViewer({
                 }`}
               >
                 {/* Line numbers */}
-                <div className="w-10 py-0.5 px-1.5 text-right text-[10px] text-slate-600 select-none border-r border-slate-800/60 flex-shrink-0">
+                <div className="w-8 sm:w-10 py-0.5 px-1 sm:px-1.5 text-right text-[9px] sm:text-[10px] text-slate-600 select-none border-r border-slate-800/60 flex-shrink-0">
                   {line.oldNum ?? ""}
                 </div>
-                <div className="w-10 py-0.5 px-1.5 text-right text-[10px] text-slate-600 select-none border-r border-slate-800/60 flex-shrink-0">
+                <div className="w-8 sm:w-10 py-0.5 px-1 sm:px-1.5 text-right text-[9px] sm:text-[10px] text-slate-600 select-none border-r border-slate-800/60 flex-shrink-0">
                   {line.newNum ?? ""}
                 </div>
 
                 {/* Diff marker */}
                 <div
-                  className={`w-6 py-0.5 text-center font-bold select-none flex-shrink-0 ${
+                  className={`w-5 sm:w-6 py-0.5 text-center font-bold select-none flex-shrink-0 ${
                     isAdded
                       ? "text-emerald-400"
                       : isRemoved

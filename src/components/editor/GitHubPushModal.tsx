@@ -233,39 +233,39 @@ export default function GitHubPushModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="w-full max-w-xl max-h-[92vh] sm:max-h-[85vh] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-850">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-100">
-              <GithubLogo size={20} weight="fill" />
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 bg-slate-850">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-100 shrink-0">
+              <GithubLogo size={18} weight="fill" />
             </div>
-            <div>
-              <h2 className="text-sm font-semibold text-slate-100">
+            <div className="min-w-0">
+              <h2 className="text-xs sm:text-sm font-semibold text-slate-100 truncate">
                 Push ke GitHub Repository
               </h2>
-              <p className="text-xs text-slate-400">
-                Commit 8 dokumen spek dan arsitektur project langsung ke repository
+              <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+                Commit 8 dokumen spek dan arsitektur langsung ke repository
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto max-h-[75vh]">
+        <div className="p-4 sm:p-6 overflow-y-auto max-h-[80vh]">
           {checkingStatus ? (
             <div className="py-12 text-center text-slate-400 flex items-center justify-center gap-2">
               <Spinner size={20} className="animate-spin text-emerald-400" />

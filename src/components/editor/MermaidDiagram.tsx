@@ -119,37 +119,37 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   };
 
   return (
-    <div className="my-6 rounded-xl border border-border bg-surface overflow-hidden shadow-sm">
+    <div className="my-4 sm:my-6 rounded-xl border border-border bg-surface overflow-hidden shadow-sm">
       {/* Top bar toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-muted/60 border-b border-border/80 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="font-mono font-semibold text-foreground tracking-wide">
-            Diagram ERD / Visual
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-muted/70 border-b border-border/80 text-xs gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
+          <span className="font-mono font-semibold text-foreground tracking-wide text-[11px] sm:text-xs truncate">
+            Diagram Arsitektur / ERD
           </span>
           {isParsing && (
-            <span className="text-muted-fg text-[11px] flex items-center gap-1">
+            <span className="text-muted-fg text-[10px] sm:text-[11px] hidden xs:flex items-center gap-1">
               <RefreshCw className="w-3 h-3 animate-spin text-primary" />
               Rendering...
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setShowCode(!showCode)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded bg-surface border border-border hover:border-primary/40 text-muted-fg hover:text-foreground transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-md bg-surface border border-border hover:border-primary/40 text-muted-fg hover:text-foreground text-[11px] sm:text-xs transition-colors cursor-pointer"
             title={showCode ? "Tampilkan Diagram Visual" : "Tampilkan Kode Mermaid"}
           >
             {showCode ? (
               <>
-                <Eye className="w-3.5 h-3.5 text-primary" />
+                <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
                 <span>Visual</span>
               </>
             ) : (
               <>
-                <Code className="w-3.5 h-3.5" />
+                <Code className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Kode</span>
               </>
             )}
@@ -158,17 +158,17 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-1 px-2.5 py-1 rounded bg-surface border border-border hover:border-primary/40 text-muted-fg hover:text-foreground transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-md bg-surface border border-border hover:border-primary/40 text-muted-fg hover:text-foreground text-[11px] sm:text-xs transition-colors cursor-pointer"
             title="Salin Kode Mermaid"
           >
             {copied ? (
               <>
-                <Check className="w-3.5 h-3.5 text-primary" />
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
                 <span className="text-primary font-medium">Disalin</span>
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Salin</span>
               </>
             )}
@@ -177,7 +177,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
       </div>
 
       {/* Main Content Area */}
-      <div className="p-4 sm:p-6 overflow-x-auto min-h-[140px] flex items-center justify-center">
+      <div className="p-2 sm:p-6 overflow-x-auto min-h-[120px] flex items-center justify-center">
         {showCode ? (
           <pre
             className="w-full text-xs text-foreground bg-muted p-4 rounded-lg overflow-x-auto whitespace-pre font-mono leading-relaxed"

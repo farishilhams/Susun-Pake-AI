@@ -175,15 +175,24 @@ export default function RefinementChat({
 
   return (
     <AnimatePresence>
+      {/* Mobile/Tablet Backdrop Overlay (hidden on lg screens) */}
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
+        key="refine-backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm lg:hidden"
+      />
+
+      <motion.div
+        key="refine-panel"
+        initial={{ opacity: 0, x: 40 }}
         animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 20 }}
+        exit={{ opacity: 0, x: 40 }}
         transition={{ duration: 0.2 }}
-        className="flex flex-col border-l"
+        className="fixed inset-y-0 right-0 z-50 w-full sm:w-[380px] max-w-full lg:static lg:z-auto lg:w-80 flex flex-col border-l shadow-2xl lg:shadow-none flex-shrink-0"
         style={{
-          width: 320,
-          flexShrink: 0,
           background: "var(--surface)",
           borderColor: "var(--border-color)",
         }}
