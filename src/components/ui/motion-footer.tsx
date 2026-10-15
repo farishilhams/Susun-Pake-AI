@@ -371,7 +371,7 @@ export function CinematicFooter() {
             "flex w-full flex-col justify-between overflow-hidden bg-background text-foreground cinematic-footer-wrapper transform-gpu",
             isDesktop
               ? "fixed bottom-0 left-0 h-screen min-h-[600px]"
-              : "relative py-12 min-h-fit"
+              : "relative pt-12 pb-8 sm:pb-10 min-h-fit"
           )}
         >
           {/* Ambient Light & Grid Background */}
@@ -396,7 +396,7 @@ export function CinematicFooter() {
           </div>
 
           {/* 2. Main Center Content */}
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 sm:px-6 mt-14 sm:mt-18 w-full max-w-5xl mx-auto">
+          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 sm:px-6 mt-14 sm:mt-18 mb-8 sm:mb-12 w-full max-w-5xl mx-auto">
             <h2
               ref={headingRef}
               className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black footer-text-glow tracking-tighter mb-6 sm:mb-8 text-center"
@@ -422,7 +422,7 @@ export function CinematicFooter() {
               </div>
 
               {/* Secondary Navigation Links (Single Source of Truth, 100% Unique) */}
-              <div className="flex flex-wrap justify-center gap-2 sm:gap-4 w-full mt-1">
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-4 w-full mt-2.5 sm:mt-3.5">
                 <MagneticButton
                   as={Link}
                   href="/#fitur"
@@ -476,14 +476,14 @@ export function CinematicFooter() {
           </div>
 
           {/* 3. Bottom Bar / Credits (Zero Back to Top Button per Absolute Rules) */}
-          <div className="relative z-20 w-full pb-6 sm:pb-8 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-6">
+          <div className="relative z-20 w-full mt-6 sm:mt-8 md:mt-auto pb-4 sm:pb-6 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
             {/* Copyright */}
             <div className="text-muted-foreground text-[10px] sm:text-xs font-semibold tracking-widest uppercase order-2 md:order-1 text-center md:text-left">
               © 2026 Susun Pake AI. All rights reserved.
             </div>
 
             {/* "Made with Love" Badge adapted for Susun Pake AI */}
-            <div className="footer-glass-pill px-4 sm:px-6 py-2 sm:py-2.5 rounded-full flex items-center gap-2 order-1 md:order-2 cursor-default border-border/50">
+            <div className="footer-glass-pill px-4 sm:px-6 py-2 sm:py-2.5 rounded-full flex items-center justify-center gap-2 order-1 md:order-2 cursor-default border-border/50 max-w-full text-center">
               <span className="text-muted-foreground text-[10px] sm:text-xs font-bold uppercase tracking-widest">
                 Crafted with
               </span>
