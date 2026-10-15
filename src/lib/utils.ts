@@ -59,3 +59,11 @@ export function getInitials(name?: string | null, email?: string | null): string
   }
   return "SP";
 }
+
+// Re-export utility file download & clipboard untuk kemudahan akses import terpadu
+export {
+  downloadSingleFile,
+  downloadAllAsZip,
+  copyToClipboard,
+} from "./utils/download";
+export type { DownloadableFile } from "./utils/download";
