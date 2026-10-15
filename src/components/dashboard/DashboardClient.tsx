@@ -11,7 +11,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { Navbar } from "@/components/layout";
 import {
   Folder,
@@ -32,6 +32,7 @@ import {
   CheckCircle2,
   Upload,
   ArrowLeft,
+  LogOut,
 } from "lucide-react";
 import {
   GlassPill,
@@ -658,6 +659,17 @@ export default function DashboardClient({
                       <Pencil className="w-3 h-3 text-primary" />
                       <span>Edit Profil</span>
                     </MagneticButton>
+
+                    <button
+                      id="dashboard-header-logout-btn"
+                      type="button"
+                      onClick={() => signOut({ callbackUrl: "/", redirect: true })}
+                      title="Keluar dari akun di perangkat ini"
+                      className="px-3 py-1 text-xs font-mono flex items-center gap-1.5 rounded-lg border border-rose-500/30 hover:border-rose-500/50 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-3 h-3 text-rose-400" />
+                      <span>Keluar</span>
+                    </button>
                   </div>
                 </div>
               </div>

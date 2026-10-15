@@ -24,15 +24,20 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith("/project") ||
     pathname.startsWith("/templates/admin");
 
+  // Validasi integritas token (pastikan memiliki identitas user yang valid, bukan objek kosong)
+  const isAuthenticated = Boolean(
+    token && (token.userId || token.id || token.sub)
+  );
+
   // Jika pengguna sudah terautentikasi dan mencoba mengakses halaman login/register,
   // alihkan langsung ke /dashboard
-  if (isAuthRoute && token) {
+  if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   // Jika belum login dan mencoba mengakses rute privat,
   // alihkan langsung ke /login dengan callbackUrl yang sesuai
-  if (isProtectedRoute && !token) {
+  if (isProtectedRoute && !isAuthenticated) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);

@@ -89,7 +89,8 @@ export const authOptions: AuthOptions = {
   // JWT strategy — stateless, cocok untuk serverless (Vercel)
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 hari
+    maxAge: 30 * 24 * 60 * 60, // 30 hari masa aktif sesi
+    updateAge: 24 * 60 * 60, // 24 jam: refresh token secara berkala saat user aktif (sliding session)
   },
 
   callbacks: {
@@ -283,8 +284,13 @@ export const authOptions: AuthOptions = {
 
     // Expose userId, name, & image ke session object (accessible di client & server)
     async session({ session, token }) {
+      const userId = (token.userId || token.id || token.sub) as string;
+      if (!userId) {
+        // Jika token telah diinvalidasi atau kosong, bersihkan user agar client terdeteksi unauthenticated
+        return { ...session, user: undefined as any };
+      }
+
       if (session?.user) {
-        const userId = (token.userId || token.id) as string;
         session.user.id = userId;
         if (token.name) {
           session.user.name = token.name as string;

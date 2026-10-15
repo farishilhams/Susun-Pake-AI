@@ -21,9 +21,9 @@ import {
 } from "@/components/ui";
 
 // Helper membersihkan callbackUrl dari anchor hash landing page (#fitur, dll)
-// Default kembali ke beranda ("/") jika tidak ada parameter rute privat yang diminta
+// Default diarahkan ke /dashboard jika tidak ada parameter rute privat spesifik yang diminta
 function getSafeCallbackUrl(rawUrl: string | null): string {
-  if (!rawUrl) return "/";
+  if (!rawUrl) return "/dashboard";
   const clean = rawUrl.split("#")[0].trim();
   if (
     !clean ||
@@ -31,7 +31,7 @@ function getSafeCallbackUrl(rawUrl: string | null): string {
     clean.startsWith("/login") ||
     clean.startsWith("/register")
   ) {
-    return "/";
+    return "/dashboard";
   }
   if (clean.startsWith("/")) {
     return clean;
@@ -46,14 +46,14 @@ function getSafeCallbackUrl(rawUrl: string | null): string {
         pathname.startsWith("/login") ||
         pathname.startsWith("/register")
       ) {
-        return "/";
+        return "/dashboard";
       }
       return `${pathname}${parsed.search}`;
     }
   } catch {
-    return "/";
+    return "/dashboard";
   }
-  return "/";
+  return "/dashboard";
 }
 
 function LoginFormContent() {
